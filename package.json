@@ -1,7 +1,7 @@
 {
   "name": "mcp-b24",
-  "version": "0.2.0",
-  "description": "Full Bitrix24 MCP server: CRM, Disk, IM, Tasks, Calendar, HR, Smart processes, Mail, Telephony, Workflows. 28 tools, ~290 actions, RU/EN, webhook + OAuth 2.0, MIT.",
+  "version": "0.2.1",
+  "description": "MCP server for Bitrix24 (wraps the Bitrix24 REST API — CRM, Tasks, IM, Disk, Calendar, HR, Smart processes, Mail, Telephony, Workflows). 30 tools: ~290 actions, RU/EN natural-language support, webhook + OAuth 2.0, destructive action confirmation, batch.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -32,15 +32,21 @@
     "node": ">=18.0.0"
   },
   "keywords": [
+    "modelcontextprotocol",
     "mcp",
+    "mcp-server",
     "bitrix24",
     "bx24",
-    "model-context-protocol",
     "crm",
     "tasks",
     "im",
     "disk",
-    "calendar"
+    "calendar",
+    "claude",
+    "claude-desktop",
+    "rest-api",
+    "oauth",
+    "typescript"
   ],
   "license": "MIT",
   "author": "Penzin Konstantin <penzin85@gmail.com> (https://github.com/kostikpenzin)",

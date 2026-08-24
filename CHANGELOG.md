@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 (2026-08-24)
+
+- README rewritten in the reference `mcp-iva-mcu` style: centered header, npm/license/tests/Node/MCP/platform/dependencies/secrets/malware badges, English-first, nav links, author signature.
+- Russian README moved to `i18n/README.ru.md`; `i18n/README.en.md` removed (root README is now English).
+- `package.json`: description + keywords aligned to reference tone; author Penzin Konstantin.
+- Published to npm as `mcp-b24@0.2.1`.
+
 ## 0.2.0 (2026-08-24)
 
 Full Bitrix24 MCP server per technical specification (`mcp-b24`).

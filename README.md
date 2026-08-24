@@ -1,58 +1,120 @@
-# mcp-b24
+<div align="center">
 
-> 🇷🇺 Русский · 🇬🇧 [English](i18n/README.en.md)
+# MCP Server for Bitrix24
 
-**Полный MCP-сервер над REST API Битрикс24** — превосходит узкий `mcp-bitrix24` (только Tasks) и официальный MCP Битрикс24 (только справочник документации). Реально **выполняет REST-вызовы** к порталу: CRM, задачи, чаты, файлы, календарь, HR, умные процессы, почта, телефония, бизнес-процессы, события.
+[![npm version](https://img.shields.io/npm/v/mcp-b24.svg)](https://www.npmjs.com/package/mcp-b24)
+[![npm downloads](https://img.shields.io/npm/dm/mcp-b24.svg)](https://www.npmjs.com/package/mcp-b24)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![tests](https://img.shields.io/badge/tests-75-brightgreen.svg)](./CHANGELOG.md)
+[![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A518-green.svg)](https://nodejs.org/)
+[![MCP protocol](https://img.shields.io/badge/protocol-MCP-purple.svg)](https://modelcontextprotocol.io)
+[![platform](https://img.shields.io/badge/platform-Bitrix24-blue.svg)](https://www.bitrix24.com)
 
-- **30 инструментов** (28 доменных + `bx24_batch` + `bx24_call`), **~290 действий**.
-- **Авторизация:** входящий вебхук **или** OAuth 2.0 с автообновлением токена (`client_endpoint`).
-- **Транспорт:** stdio (Claude Desktop, Cursor, Codex) **и** Streamable HTTP.
-- **Безопасность:** двухфазное подтверждение деструктивных действий, JSONL-аудит, token-bucket rate-limit, backoff для `QUERY_LIMIT_EXCEEDED`/`OPERATION_TIME_LIMIT`.
-- **Локализация RU/EN** (`BX24_DEFAULT_LANG`). 73 теста, TypeScript ESM, MIT.
+[![dependencies](https://img.shields.io/badge/dependencies-0%20vulnerabilities-brightgreen.svg)](#security)
+[![secrets](https://img.shields.io/badge/secrets-none%20hardcoded-brightgreen.svg)](#security)
+[![malware](https://img.shields.io/badge/malware-none%20detected-brightgreen.svg)](#security)
 
-**Бейджи:** `npm v0.2.0` · `MIT` · `Node.js ≥ 18` · `MCP 1.x` · `Bitrix24 REST 1.0 + 3.0`.
+**30 tools** · **~290 actions** · **Bitrix24 REST 1.0 + 3.0** · **75 tests**
 
-## Документация
+MCP server for the **Bitrix24** platform.
+Wraps the Bitrix24 REST API (CRM, tasks, chats, files, calendar, HR, smart
+processes, mail, telephony, workflows, events) into 30 tools your AI agent can
+call directly — and **executes real calls** on the portal (unlike the official
+Bitrix24 MCP, which only serves documentation).
 
-| Аудитория | Файл |
-|---|---|
-| Обычные сотрудники | [docs/USER_GUIDE.md](docs/USER_GUIDE.md) |
-| Менеджеры / РОП / HR / админы | [docs/SELLER_GUIDE.md](docs/SELLER_GUIDE.md) |
-| Разработчики | [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) |
-| Справочник инструментов | [docs/TOOLS_REFERENCE.md](docs/TOOLS_REFERENCE.md) |
-| Аудит (для безопасников) | [docs/AUDIT_LOG.md](docs/AUDIT_LOG.md) |
-| English README | [i18n/README.en.md](i18n/README.en.md) |
-| OpenAPI-обзор | [specs/openapi.yaml](specs/openapi.yaml) |
+[Installation](#installation) ·
+[Configuration](#mcp-client-configuration) ·
+[Capabilities](#capabilities) ·
+[Tools](#tools-overview) ·
+[Scenarios](#usage-scenarios) ·
+[Development](#development) ·
+[npm package](https://www.npmjs.com/package/mcp-b24)
 
-## Быстрый старт
+**Languages:** English · [Русский](./i18n/README.ru.md)
+
+</div>
+
+---
+
+## Portal & Subscription
+
+This MCP server wraps the [**Bitrix24**](https://www.bitrix24.com) REST API.
+**Bitrix24** is an all-in-one workspace: CRM, tasks, projects, chats, video
+calls, documents, mail, calendar, HR, business processes, telephony, and more.
+It is available as cloud (`*.bitrix24.ru` / `*.bitrix24.com`) and on-premise.
+
+> ⚠️ **A Bitrix24 portal is required** to use this server. You need either an
+> **incoming webhook** (`BX24_WEBHOOK_URL`) or an **OAuth application**
+> (`BX24_DOMAIN` + `BX24_CLIENT_ID` + `BX24_CLIENT_SECRET` +
+> `BX24_REFRESH_TOKEN`). Create a webhook under *Developer resources → Incoming
+> webhook* on your portal, or register an OAuth app at `oauth.bitrix24.ru`.
+
+➡️ More details: [bitrix24.com](https://www.bitrix24.com) · REST docs:
+[apidocs.bitrix24.ru](https://apidocs.bitrix24.ru)
+
+---
+
+## Compatible API Versions
+
+| API | Version | Base Path | Auth | Modules |
+|-----|---------|-----------|------|---------|
+| Bitrix24 REST | **1.0 + 3.0** | `/rest/<method>.json` | incoming webhook or OAuth 2.0 | CRM, tasks, IM, disk, calendar, user, catalog, lists, mail, telephony, bizproc, HR, timeman, events |
+
+## Installation
+
+### Prerequisites
+
+- Node.js 18+
+- An active [Bitrix24](https://www.bitrix24.com) portal (cloud or on-premise)
+- An auth credential: incoming webhook **or** OAuth app (see below)
+
+### Install from npm
 
 ```bash
 npm install -g mcp-b24
-# или без установки:
+# or run without installing
 npx -y mcp-b24
 ```
 
-### Авторизация (на выбор)
+### Environment Variables
 
-**Вебхук** (проще):
-```bash
-export BX24_WEBHOOK_URL="https://ВАШ_ПОРТАЛ.bitrix24.ru/rest/1/КОД_ВЕБХУКА/"
-```
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `BX24_MODE` | Optional | `webhook` or `oauth` (auto-detected if omitted) |
+| `BX24_WEBHOOK_URL` | webhook | Incoming webhook URL: `https://portal.bitrix24.ru/rest/<user_id>/<secret>/` |
+| `BX24_DOMAIN` | oauth | Portal domain, e.g. `portal.bitrix24.ru` |
+| `BX24_CLIENT_ID` | oauth | OAuth client id |
+| `BX24_CLIENT_SECRET` | oauth | OAuth client secret |
+| `BX24_REFRESH_TOKEN` | oauth | Refresh token for auto-refresh |
+| `BX24_ACCESS_TOKEN` | Optional | Ready access token (otherwise obtained from refresh) |
+| `BX24_OAUTH_SERVER` | Optional | `https://oauth.bitrix.info` (default) |
+| `BX24_CONFIRM_DESTRUCTIVE` | Optional | Set `true` to require `confirm: true` before destructive actions |
+| `BX24_AUTO_PAGINATE` | Optional | Set `true` to auto-collect list pages up to `BX24_MAX_ROWS` |
+| `BX24_MAX_ROWS` | Optional | Row cap for auto-pagination (default 5000) |
+| `BX24_RATE_LIMIT_RPS` | Optional | Requests/sec (≤2 non-Enterprise, ≤5 Enterprise; default 2) |
+| `BX24_RATE_LIMIT_BURST` | Optional | Token-bucket burst (default 50) |
+| `BX24_DEFAULT_LANG` | Optional | `ru` or `en` (default `ru`) |
+| `BX24_LOG_LEVEL` | Optional | `silent` `error` `warn` `info` `debug` (default `info`) |
+| `BX24_AUDIT_LOG` | Optional | JSONL audit path for destructive + auth events (omit to disable) |
+| `BX24_TRANSPORT` | Optional | `stdio` or `http` (default `stdio`) |
+| `BX24_HTTP_HOST/PORT/PATH` | Optional | HTTP transport endpoint (default `127.0.0.1:3000/mcp`) |
 
-**OAuth-приложение** (портальный масштаб, авто-обновление):
-```bash
-export BX24_MODE=oauth
-export BX24_DOMAIN=ВАШ_ПОРТАЛ.bitrix24.ru
-export BX24_CLIENT_ID="..."
-export BX24_CLIENT_SECRET="..."
-export BX24_REFRESH_TOKEN="..."
-```
+You can either:
+- Set `BX24_WEBHOOK_URL` — simplest, acts on behalf of the webhook creator; no refresh needed, or
+- Set `BX24_DOMAIN` + OAuth credentials — the server will auto-refresh access tokens (≈1 h lifetime) and follow `client_endpoint` from the OAuth response.
 
-Все переменные — в [`.env.example`](.env.example).
+### Destructive Action Confirmation
 
-### Конфигурация клиентов MCP
+When `BX24_CONFIRM_DESTRUCTIVE=true` is set, the server requires an explicit `confirm: true` parameter before executing destructive actions (delete, remove, complete, leave, kick, cancel, stop, close, mute, unbind, clear, markDeleted, kill, …). Without it, the tool returns a structured `requiresConfirmation` preview and does **not** execute, protecting against accidental data loss with AI agents. Every destructive operation that runs is written to the JSONL audit log (`BX24_AUDIT_LOG`). When unset or `false`, destructive actions execute without confirmation (default).
 
-**Claude Desktop** (`claude_desktop_config.json`):
+## MCP Client Configuration
+
+### Claude Desktop
+
+Add to `claude_desktop_config.json`:
+
+**npx (recommended):**
+
 ```json
 {
   "mcpServers": {
@@ -60,7 +122,7 @@ export BX24_REFRESH_TOKEN="..."
       "command": "npx",
       "args": ["-y", "mcp-b24"],
       "env": {
-        "BX24_WEBHOOK_URL": "https://ВАШ_ПОРТАЛ.bitrix24.ru/rest/1/КОД_ВЕБХУКА/",
+        "BX24_WEBHOOK_URL": "https://portal.bitrix24.ru/rest/1/abcd1234/",
         "BX24_CONFIRM_DESTRUCTIVE": "true"
       }
     }
@@ -68,56 +130,305 @@ export BX24_REFRESH_TOKEN="..."
 }
 ```
 
-Windows (cmd): `"command": "cmd", "args": ["/c", "npx", "-y", "mcp-b24"]`.
+**OAuth:**
 
-**Cursor** (`.cursor/mcp.json`) — тот же блок `mcpServers`.
-**VS Code** (`.vscode/mcp.json`) — ключ `servers` вместо `mcpServers`.
-**Codex CLI:** `codex mcp add bitrix24 --env BX24_WEBHOOK_URL=... -- npx -y mcp-b24`.
-**Cline / Roo Code** — блок `mcpServers` как для Claude Desktop.
+```json
+{
+  "mcpServers": {
+    "bitrix24": {
+      "command": "npx",
+      "args": ["-y", "mcp-b24"],
+      "env": {
+        "BX24_MODE": "oauth",
+        "BX24_DOMAIN": "portal.bitrix24.ru",
+        "BX24_CLIENT_ID": "app.abc123",
+        "BX24_CLIENT_SECRET": "******",
+        "BX24_REFRESH_TOKEN": "******"
+      }
+    }
+  }
+}
+```
 
-**Streamable HTTP:**
-```bash
-BX24_TRANSPORT=http BX24_HTTP_PORT=3000 BX24_WEBHOOK_URL="..." npx mcp-b24
-# http://127.0.0.1:3000/mcp
+**Windows** — use `cmd /c`:
+
+```json
+{
+  "mcpServers": {
+    "bitrix24": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "mcp-b24"],
+      "env": { "BX24_WEBHOOK_URL": "https://portal.bitrix24.ru/rest/1/abcd1234/" }
+    }
+  }
+}
 ```
 
 **Docker:**
+
 ```bash
-docker build -t mcp-b24 .
-docker run --rm -e BX24_WEBHOOK_URL="..." mcp-b24          # stdio
-docker compose up                                                   # HTTP (см. docker-compose.yml)
+docker build -t mcp/bitrix24 .
 ```
 
-## Инструменты (28 доменных + 2 generic)
+```json
+{
+  "mcpServers": {
+    "bitrix24": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "-e", "BX24_WEBHOOK_URL", "mcp/bitrix24"],
+      "env": { "BX24_WEBHOOK_URL": "https://portal.bitrix24.ru/rest/1/abcd1234/" }
+    }
+  }
+}
+```
 
-**CRM:** `bx24_crm_leads`, `bx24_crm_deals`, `bx24_crm_contacts`, `bx24_crm_companies`, `bx24_crm_invoices`, `bx24_crm_products`, `bx24_crm_activities`, `bx24_crm_requisites`, `bx24_crm_duplicates`, `bx24_smart_processes`.
-**collab:** `bx24_tasks`, `bx24_projects`, `bx24_disk`, `bx24_im`, `bx24_im_chat`, `bx24_conf`, `bx24_calendar`.
-**org:** `bx24_users`, `bx24_departments`, `bx24_time`, `bx24_hr`.
-**biz:** `bx24_lists`, `bx24_mail`, `bx24_reports`, `bx24_marketing`, `bx24_workflows`, `bx24_telephony`, `bx24_events`.
-**generic:** `bx24_batch` (≤50 вызовов), `bx24_call` (любой REST-метод по имени).
-
-Каждый доменный инструмент — **action-based**: операция выбирается параметром `action`. Полный реестр действий — в [docs/TOOLS_REFERENCE.md](docs/TOOLS_REFERENCE.md).
-
-## Примеры запросов
-
-- «Создай лид Иван, телефон +7…» → `bx24_crm_leads action=add`
-- «Покажи мои задачи на сегодня» → `bx24_tasks action=list`
-- «Загрузи PDF в "Договоры 2026" и скинь ссылку в чат "Партнёры"» → `bx24_disk` + `bx24_im_chat`
-- «Запусти бизнес-процесс согласования по сделке #456» → `bx24_workflows action=start`
-- «Удали компанию ООО "Старая фирма"» → `bx24_crm_companies action=delete` (попросит подтверждение)
-
-## Разработка
+**Streamable HTTP:**
 
 ```bash
+BX24_TRANSPORT=http BX24_HTTP_PORT=3000 BX24_WEBHOOK_URL="https://..." npx mcp-b24
+# serves http://127.0.0.1:3000/mcp
+```
+
+### Cursor
+
+Add to `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "bitrix24": {
+      "command": "npx",
+      "args": ["-y", "mcp-b24"],
+      "env": { "BX24_WEBHOOK_URL": "https://portal.bitrix24.ru/rest/1/abcd1234/" }
+    }
+  }
+}
+```
+
+### VS Code
+
+Add to `.vscode/mcp.json` (note: top-level key is `servers`, not `mcpServers`):
+
+```json
+{
+  "servers": {
+    "bitrix24": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "mcp-b24"],
+      "env": { "BX24_WEBHOOK_URL": "https://portal.bitrix24.ru/rest/1/abcd1234/" }
+    }
+  }
+}
+```
+
+### Codex CLI
+
+```bash
+codex mcp add bitrix24 --env BX24_WEBHOOK_URL=https://portal.bitrix24.ru/rest/1/abcd1234/ -- npx -y mcp-b24
+```
+
+### From source
+
+```bash
+git clone https://github.com/kostikpenzin/mcp_b24.git
+cd mcp_b24
 npm install
-npm run build        # tsc → dist/
-npm test             # 73 теста
-npm run test:coverage
-npm start            # node dist/index.js
+npm run build
 ```
 
-Подробно: [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md).
+```json
+{
+  "mcpServers": {
+    "bitrix24": {
+      "command": "node",
+      "args": ["/absolute/path/to/mcp_b24/dist/index.js"],
+      "env": { "BX24_WEBHOOK_URL": "https://portal.bitrix24.ru/rest/1/abcd1234/" }
+    }
+  }
+}
+```
 
-## Лицензия
+## Tools Overview
 
-MIT © Penzin Konstantin ([github.com/kostikpenzin](https://github.com/kostikpenzin))
+### 30 tools, ~290 actions
+
+| Tool | Description | Group |
+|------|-------------|-------|
+| `bx24_crm_leads` | Leads: CRUD, contacts, user fields, convert | CRM |
+| `bx24_crm_deals` | Deals + pipelines/categories, product rows, contact bindings | CRM |
+| `bx24_crm_contacts` | Contacts: CRUD, company bindings, user fields | CRM |
+| `bx24_crm_companies` | Companies: CRUD, contact bindings, user fields | CRM |
+| `bx24_crm_invoices` | Invoices (SMART_INVOICE, entityTypeId=31) + stages | CRM |
+| `bx24_crm_products` | Catalog: products, sections, prices, stores, product rows | CRM |
+| `bx24_crm_activities` | Activities (calls/meetings/emails) + timeline | CRM |
+| `bx24_crm_requisites` | Requisites + presets + links | CRM |
+| `bx24_crm_duplicates` | Duplicate search & merge | CRM |
+| `bx24_smart_processes` | Smart processes: types + items (arbitrary entities) | CRM |
+| `bx24_tasks` | Tasks: lifecycle + checklists + comments + elapsed + flows + stages | collab |
+| `bx24_projects` | Groups/projects (social network) | collab |
+| `bx24_disk` | Disk: storages, folders, files, versions, external links | collab |
+| `bx24_im` | Messenger: messages, notifications, users, search, counters, recent | collab |
+| `bx24_im_chat` | Chats: create, members, title/color/avatar, mute, messages | collab |
+| `bx24_conf` | Video conferences | collab |
+| `bx24_calendar` | Calendar: events, sections, meetings, resources, availability | collab |
+| `bx24_users` | Users: current, get, search, user fields, CRUD | org |
+| `bx24_departments` | Departments / org structure | org |
+| `bx24_time` | Working time tracking (timeman) | org |
+| `bx24_hr` | HR: employees, invite, dismiss, transfer | org |
+| `bx24_lists` | Universal lists (infoblocks) | biz |
+| `bx24_mail` | Mail: mailboxes, messages, send, reply, forward, filters | biz |
+| `bx24_reports` | Analytics & reports | biz |
+| `bx24_marketing` | Segments, broadcast, lead filters | biz |
+| `bx24_workflows` | Business processes & robots (bizproc) | biz |
+| `bx24_telephony` | Telephony: external lines, calls, SIP, voximplant | biz |
+| `bx24_events` | Event subscriptions + offline queue | biz |
+| `bx24_batch` | Combine up to 50 REST calls in one request (`$result[]` refs) | generic |
+| `bx24_call` | Invoke any Bitrix24 REST method by name (escape-hatch) | generic |
+
+Each domain tool is **action-based**: the `action` enum selects the operation
+(e.g. `action: "add"`, `"list"`, `"update"`, `"delete"`). Full action list:
+[`docs/TOOLS_REFERENCE.md`](./docs/TOOLS_REFERENCE.md).
+
+## Capabilities
+
+The MCP server understands **natural language in Russian and English**. You
+don't need to know tool names or action enums — describe what you want in plain
+language and the AI agent maps it to the right tool and action.
+
+### What you can do
+
+- **CRM** — create/find/update leads, contacts, companies, deals; move deals
+  across pipelines; manage activities (calls/meetings); product rows; custom
+  fields; requisites; find & merge duplicates; smart processes
+- **Tasks & projects** — create, complete, delegate, defer tasks; checklists;
+  comments; elapsed time; flows; manage groups/projects
+- **Chats & messenger** — create chats, add/remove members, send/edit/delete
+  messages, search, counters, notifications
+- **Files (Disk)** — upload/download/move/copy files, list folders, versions,
+  public links
+- **Calendar** — events, sections, availability, nearest events
+- **HR & org** — users, departments, working time, invite/dismiss/transfer
+- **Business** — universal lists, mail, reports, marketing, workflows
+  (bizproc), telephony, event subscriptions
+- **Batch & generic** — combine up to 50 calls; call any REST method by name
+
+### Security
+
+- Credentials (webhook secret, OAuth tokens) are **never** exposed to the AI
+  agent or returned in tool results
+- Destructive actions can require explicit `confirm: true`
+  (`BX24_CONFIRM_DESTRUCTIVE=true`) and are written to the JSONL audit log
+- Rate limits are respected via a token-bucket; `QUERY_LIMIT_EXCEEDED` (503) and
+  `OPERATION_TIME_LIMIT` (429) are retried with backoff
+- Password management and auth/login actions are excluded — auth is handled
+  automatically via environment variables
+
+## Usage Scenarios
+
+### 1. Create a lead
+
+> **You say:** "Create a lead Ivan Petrov, phone +79001234567, email ivan@example.ru"
+
+The AI agent will call `bx24_crm_leads` with `action: "add"` and
+`fields = { TITLE: "Ivan Petrov", PHONE: [{ VALUE: "+79001234567", VALUE_TYPE: "WORK" }], EMAIL: [...] }`.
+
+### 2. Show my tasks for today
+
+> **You say:** "Покажи мои задачи на сегодня"
+
+The AI agent will call `bx24_tasks` with `action: "list"` filtering by
+`RESPONSIBLE_ID = current` and `DEADLINE = today`.
+
+### 3. Move a deal across the pipeline
+
+> **You say:** "Передвинь сделку №456 на стадию «В работе»"
+
+The AI agent will call `bx24_crm_deals` with `action: "update"` setting
+`STAGE_ID` (stages can be listed via `action: "category_list"`).
+
+### 4. Send a message to a chat
+
+> **You say:** "Напиши в чат «Проект Альфа»: релиз сегодня в 18:00"
+
+The AI agent will call `bx24_im_chat` with `action: "sendMessage"`
+(`DIALOG_ID = chatNNN`, `MESSAGE = "…"`).
+
+### 5. Upload a file and share the link
+
+> **You say:** "Загрузи PDF-договор на Диск в папку «Договоры 2026» и скинь ссылку в чат «Партнёры»"
+
+The AI agent will: `bx24_disk` → `file_upload`, then `file_getExternalLink`,
+then `bx24_im_chat` → `sendMessage`.
+
+### 6. Start an approval workflow
+
+> **You say:** "Запусти бизнес-процесс «Согласование с юристами» для сделки #456"
+
+The AI agent will call `bx24_workflows` with `action: "start"`,
+`templateId` and `documentId = ["crm", "DEAL", 456]`.
+
+### 7. Analyze the sales funnel
+
+> **You say:** "Сделай отчёт по воронке «Продажи»: сделки по этапам, средний чек"
+
+The AI agent will call `bx24_crm_deals` `action: "list"` (filtered by
+`CATEGORY_ID`) and `bx24_reports` `action: "funnel_stages"`, then aggregate.
+
+## Development
+
+```bash
+npm install          # Install dependencies
+npm run build        # Compile TypeScript + chmod +x
+npm run dev          # Watch mode
+npm test             # Run 75 tests (vitest)
+npm run test:coverage
+npm start            # Run server
+docker build -t mcp/bitrix24 .   # Docker image
+npm publish          # Publish to npm (auto clean + build + test)
+```
+
+## Project Structure
+
+```
+mcp_b24/
+├── src/
+│   ├── index.ts          # MCP server entry point (transport selection)
+│   ├── server.ts         # MCP server: register/list/call + instructions
+│   ├── config.ts         # Environment configuration (BX24_*)
+│   ├── api-client.ts     # HTTP client: webhook/OAuth, refresh, backoff, token-bucket
+│   ├── error.ts          # Error handling
+│   ├── types.ts          # Shared types
+│   ├── i18n/             # ru.ts, en.ts, index.ts
+│   ├── audit/log.ts      # JSONL audit of destructive + auth events
+│   ├── utils/            # logger, tokenBucket
+│   ├── transport.ts      # stdio + Streamable HTTP
+│   └── tools/
+│       ├── framework.ts  # Data-driven action-tool framework
+│       ├── params.ts     # Reusable param schemas
+│       ├── index.ts      # Tool registration (30 tools)
+│       ├── batch.ts      # bx24_batch
+│       ├── call.ts       # bx24_call (escape-hatch)
+│       ├── crm/          # 10 CRM tools
+│       ├── collab/       # 7 collab tools
+│       ├── org/         # 4 org tools
+│       └── biz/          # 7 biz tools
+├── docs/                 # USER_GUIDE, SELLER_GUIDE, DEVELOPER_GUIDE, TOOLS_REFERENCE, AUDIT_LOG
+├── i18n/README.ru.md     # Russian README
+├── specs/openapi.yaml    # OpenAPI overview
+├── Dockerfile            # Multi-stage Docker build
+├── docker-compose.yml
+├── .env.example
+├── LICENSE
+├── CHANGELOG.md
+├── package.json
+└── tsconfig.json
+```
+
+## License
+
+[MIT](./LICENSE)
+
+## Author
+
+**Penzin Konstantin** — [GitHub](https://github.com/kostikpenzin) · [penzin85@gmail.com](mailto:penzin85@gmail.com)
