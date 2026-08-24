@@ -1,4 +1,8 @@
 # Changelog
+n## 0.2.2 (2026-08-24)
+
+- Removed `docs/superpowers/` (internal design spec) from the repository and published package.
+
 
 ## 0.2.1 (2026-08-24)
 

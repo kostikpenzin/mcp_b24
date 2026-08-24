@@ -13,7 +13,6 @@
 | [AUDIT_LOG.md](AUDIT_LOG.md) | Админы / безопасники | Формат и политика аудита деструктивных операций |
 
 Дополнительно:
-- [Дизайн-спецификация проекта](superpowers/specs/2026-08-24-bitrix24-mcp-design.md) — исходный дизайн (первая итерация).
 - Английский README — [`../README.md`](../README.md). Русский README — [`../i18n/README.ru.md`](../i18n/README.ru.md).
 - OpenAPI-обзор — [`specs/openapi.yaml`](../specs/openapi.yaml).
 
