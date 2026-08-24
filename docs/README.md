@@ -14,7 +14,7 @@
 
 Дополнительно:
 - [Дизайн-спецификация проекта](superpowers/specs/2026-08-24-bitrix24-mcp-design.md) — исходный дизайн (первая итерация).
-- EN README — [`i18n/README.en.md`](../i18n/README.en.md).
+- Английский README — [`../README.md`](../README.md). Русский README — [`../i18n/README.ru.md`](../i18n/README.ru.md).
 - OpenAPI-обзор — [`specs/openapi.yaml`](../specs/openapi.yaml).
 
 ## Быстрый старт
