@@ -55,6 +55,9 @@
     "type": "git",
     "url": "git+https://github.com/kostikpenzin/mcp_b24.git"
   },
+  "bugs": {
+    "url": "https://github.com/kostikpenzin/mcp_b24/issues"
+  },
   "mcpName": "io.github.kostikpenzin/mcp-b24",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
