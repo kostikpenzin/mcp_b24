@@ -10,21 +10,23 @@
 flowchart TD
     A["деструктивное действие"] --> B{"BX24_CONFIRM_DESTRUCTIVE?"}
     B -->|выкл| E["выполнить → fetch"]
-    B -->|вкл, без confirm| P["requiresConfirmation preview<br/>НЕ выполняется → без записи"]
+    B -->|вкл, без confirm| P["requiresConfirmation preview<br/>НЕ выполняется → запись denied"]
     P --> U["пользователь подтверждает"] --> C["confirm:true → выполнить"]
     B -->|вкл, confirm:true| E
     E --> W["запись JSONL<br/>result: ok | error"]
+    P --> D["запись JSONL<br/>result: denied"]
 ```
 
 ## Что пишется
 
-- Все деструктивные действия (помеченные `destructive` или содержащие ключевые слова delete/remove/complete/leave/kick/cancel/stop/close/mute/unbind/clear/markDeleted/kill).
+- Все деструктивные действия (помеченные `destructive` или содержащие ключевые слова delete/remove/complete/leave/kick/cancel/stop/close/mute/unbind/clear/markDeleted/kill) — включая отказы (`result: "denied"`), когда `BX24_CONFIRM_DESTRUCTIVE=true` и вызов пришёл без `confirm: true`.
 - События авторизации: `auth.refresh` (ok/error), `auth.failed`.
 
 ## Формат — JSONL, одна строка на операцию
 
 ```json
 {"ts":"2026-08-24T15:42:18.123Z","tool":"bx24_crm_companies","action":"delete","restMethod":"crm.company.delete","params":{"id":"421"},"result":"ok","durationMs":312}
+{"ts":"2026-08-24T15:42:50.000Z","tool":"bx24_crm_companies","action":"delete","restMethod":"crm.company.delete","params":{"id":"421"},"result":"denied","durationMs":0}
 {"ts":"2026-08-24T15:43:01.000Z","tool":"auth","action":"refresh","restMethod":"oauth/token","result":"ok"}
 ```
 
@@ -56,4 +58,4 @@ filebeat.inputs: [{ type: log, paths: ["/var/log/bx24/audit.log"], json: { keys_
 
 - Аудит не отключаем для деструктивных операций при заданном `BX24_AUDIT_LOG`.
 - Маскирование секретов обязательно (`maskParams`, `SECRET_RE`).
-- При `BX24_CONFIRM_DESTRUCTIVE=true` каждое деструктивное действие: (1) первый вызов возвращает `requiresConfirmation` preview и НЕ пишется в аудит как `ok` (считается `denied`, если не повторено); (2) повтор с `confirm:true` выполняется и пишется как `ok`/`error`.
+- При `BX24_CONFIRM_DESTRUCTIVE=true` каждое деструктивное действие: (1) первый вызов возвращает `requiresConfirmation` preview и пишется в аудит как `result: "denied"` (попытка отказа зафиксирована); (2) повтор с `confirm:true` выполняется и пишется как `ok`/`error`.

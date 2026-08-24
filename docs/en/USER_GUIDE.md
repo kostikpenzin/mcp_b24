@@ -18,7 +18,7 @@ Unlike the official Bitrix24 MCP (documentation only), this server **actually ex
 4. **Don't know the fields? ask**: "Show lead fields" → the agent calls `action=fields`.
 5. **Bulk → batch**: "Create 5 leads at once" → the agent uses `bx24_batch`.
 
-## 28 everyday cases (plain language)
+## 45 everyday cases (plain language)
 
 1. **"Show my tasks for today"** → `bx24_tasks action=list` (RESPONSIBLE_ID=current, DEADLINE=today).
 2. **"Create a meeting with Petrov tomorrow at 15:00"** → `bx24_calendar action=event_add`.
@@ -48,6 +48,30 @@ Unlike the official Bitrix24 MCP (documentation only), this server **actually ex
 26. **"Add a todo 'Send invoice' to deal #456"** → `bx24_crm_activities action=todo_add` (OWNER_ID, OWNER_TYPE_ID=2).
 27. **"Turn the email into a task for Anna"** → `bx24_mail action=message_createtask` (messageId).
 28. **"Pin task #77 to the 'Urgent' flow and move to the 'In review' stage"** → `bx24_tasks action=addToFlow` → `moveToStage`.
+29. **"Create a project 'Site migration' and add three tasks to it"** → `bx24_projects action=create` → `bx24_tasks action=add` (bind to the project's group).
+30. **"Invite Anna and Petr to project #5 as executors"** → `bx24_projects action=user_add` (per user, role).
+31. **"Send a personal message to Anna and ping the team with a system notification"** → `bx24_im action=message_add` → `notify_system_add`.
+32. **"Mark all messages in dialog #42 as read, then show the latest 20"** → `bx24_im action=dialog_read_all` → `dialog_messages_list`.
+33. **"Create an invoice for deal #456, set stage 'Paid'"** → `bx24_crm_invoices action=add` (entityTypeId=31, OWNER_ID=456) → `update` (STAGE_ID).
+34. **"Add company requisites for company #88 — INN, KPP and a bank account"** → `bx24_crm_requisites action=preset_list` → `add` (presetId) → `bankdetail_add`.
+35. **"Link requisites #10 to deal #456"** → `bx24_crm_requisites action=link_register` (entityTypeId=2, entityId=456).
+36. **"Create a call list 'March campaign' from lead IDs [1,2,3] and start dialing"** → `bx24_crm_calllists action=add` (ENTITY_TYPE=LEAD, lead IDs) → `start`.
+37. **"How did deals move between stages this month? show the funnel transitions"** → `bx24_crm_stagehistory action=list` (filter by ownerId/category and date).
+38. **"Add a delivery address for contact #12"** → `bx24_crm_addresses action=add` (type + address fields) → link via `byclient` if needed.
+39. **"Trigger the 'Notify manager' automation rule for lead #100"** → `bx24_crm_automation action=trigger` (DOCUMENT_ID, code) or `trigger_execute` (id).
+40. **"Call the client at +7 495 … from the portal and play the voice prompt"** → `bx24_telephony action=voximplant_infocall_startwithsound` (FROM, TO, FILE) or `voximplant_callback_start`.
+41. **"Subscribe to the `onCrmLeadAdd` event so my handler runs on new leads"** → `bx24_events action=bind` (event, handler, auth).
+42. **"Add 50 leads from this list in one request, then link each to a deal using result references"** → `bx24_batch` with `cmd: { lead_0: "crm.lead.add?fields[...]", deal_0: "crm.deal.add?fields[CONTACT_ID]=$result[lead_0]" }` (≤50 commands).
+43. **"Call `entity.item.property.add` directly — it's not wrapped in a tool yet"** → `bx24_call method=entity.item.property.add` (escape-hatch; arbitrary params).
+44. **"Delete company #88, but confirm first"** → first `bx24_crm_companies action=delete id=88` returns a `requiresConfirmation` preview (with `BX24_CONFIRM_DESTRUCTIVE=true`); repeat with `confirm: true` to execute.
+45. **"Who tried to delete something today? show refused attempts"** → inspect `audit.log`: filter `result: "denied"` rows to see destructive calls that were requested but not confirmed, plus `ok`/`error` for executed ones.
+
+## Two-phase confirmation (destructive actions)
+
+With `BX24_CONFIRM_DESTRUCTIVE=true`, the server never executes a destructive action (delete, remove, complete, close, kick, cancel, stop, mute, unbind, clear, markDeleted, kill, …) on the first call. Instead it returns a structured `requiresConfirmation` preview and writes a `result: "denied"` row to the audit log. Repeat the same call with `confirm: true` to execute — the server then runs it and writes `result: "ok"`/`"error"`.
+
+- This applies to **all** tools, including the generic ones: `bx24_batch` (any command whose method matches the destructive keywords) and `bx24_call` (any method that looks destructive).
+- `bx24_call` rejects `method: "batch"` — use `bx24_batch` instead, which enforces the 50-command cap and the same confirmation.
 
 ## Common issues
 

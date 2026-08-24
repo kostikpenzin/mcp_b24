@@ -6,7 +6,7 @@ The path is set by the `BX24_AUDIT_LOG` environment variable (disabled by defaul
 
 ## What is written
 
-- All destructive actions (flagged `destructive` or containing keywords: delete/remove/complete/leave/kick/cancel/stop/close/mute/unbind/clear/markDeleted/kill).
+- All destructive actions (flagged `destructive` or containing keywords: delete/remove/complete/leave/kick/cancel/stop/close/mute/unbind/clear/markDeleted/kill) — including refused attempts (`result: "denied"`) when `BX24_CONFIRM_DESTRUCTIVE=true` and the call arrives without `confirm: true`.
 - Auth events: `auth.refresh` (ok/error), `auth.failed`.
 
 ## Audit flow
@@ -15,16 +15,18 @@ The path is set by the `BX24_AUDIT_LOG` environment variable (disabled by defaul
 flowchart TD
     A["destructive action"] --> B{"BX24_CONFIRM_DESTRUCTIVE?"}
     B -->|off| E["execute → fetch"]
-    B -->|on, no confirm| P["requiresConfirmation preview<br/>NOT executed → no audit row"]
+    B -->|on, no confirm| P["requiresConfirmation preview<br/>NOT executed → denied row"]
     P --> U["user confirms"] --> C["confirm:true → execute"]
     B -->|on, confirm:true| E
     E --> W["write JSONL row<br/>result: ok | error"]
+    P --> D["write JSONL row<br/>result: denied"]
 ```
 
 ## Format — JSONL, one line per operation
 
 ```json
 {"ts":"2026-08-24T15:42:18.123Z","tool":"bx24_crm_companies","action":"delete","restMethod":"crm.company.delete","params":{"id":"421"},"result":"ok","durationMs":312}
+{"ts":"2026-08-24T15:42:50.000Z","tool":"bx24_crm_companies","action":"delete","restMethod":"crm.company.delete","params":{"id":"421"},"result":"denied","durationMs":0}
 {"ts":"2026-08-24T15:43:01.000Z","tool":"auth","action":"refresh","restMethod":"oauth/token","result":"ok"}
 ```
 
@@ -56,4 +58,4 @@ filebeat.inputs: [{ type: log, paths: ["/var/log/bx24/audit.log"], json: { keys_
 
 - Auditing cannot be disabled for destructive ops once `BX24_AUDIT_LOG` is set.
 - Secret masking is mandatory (`maskParams`, `SECRET_RE`).
-- With `BX24_CONFIRM_DESTRUCTIVE=true`: the first call returns a `requiresConfirmation` preview and is **not** audited as `ok` (treated as `denied` if not retried); a retry with `confirm:true` executes and is audited as `ok`/`error`.
+- With `BX24_CONFIRM_DESTRUCTIVE=true`: the first call returns a `requiresConfirmation` preview and is audited as `result: "denied"` (the refused attempt is recorded); a retry with `confirm:true` executes and is audited as `ok`/`error`.

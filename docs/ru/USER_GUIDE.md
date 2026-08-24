@@ -18,7 +18,7 @@
 4. **Не знаете поля — спросите**: «покажи поля лида» → агент вызовет `action=fields`.
 5. **Массовое — через batch**: «создай 5 лидов сразу» — агент использует `bx24_batch`.
 
-## 28 повседневных кейсов (простым языком)
+## 45 повседневных кейсов (простым языком)
 
 1. **«Покажи мои задачи на сегодня»** → `bx24_tasks action=list` (RESPONSIBLE_ID=current, DEADLINE=today).
 2. **«Создай встречу с Петровым завтра в 15:00»** → `bx24_calendar action=event_add`.
@@ -48,6 +48,30 @@
 26. **«Добавь дело "Отправить счёт" к сделке #456»** → `bx24_crm_activities action=todo_add` (OWNER_ID, OWNER_TYPE_ID=2).
 27. **«Преврати письмо в задачу для Анны»** → `bx24_mail action=message_createtask` (messageId).
 28. **«Закрепи задачу #77 за потоком "Срочные" и переведи в стадию "На проверке"»** → `bx24_tasks action=addToFlow` → `moveToStage`.
+29. **«Создай проект "Миграция сайта" и добавь в него три задачи»** → `bx24_projects action=create` → `bx24_tasks action=add` (привязать к группе проекта).
+30. **«Пригласи Анну и Петра в проект №5 исполнителями»** → `bx24_projects action=user_add` (по пользователю, role).
+31. **«Отправь личное сообщение Анне и пни команду системным уведомлением»** → `bx24_im action=message_add` → `notify_system_add`.
+32. **«Отметь все сообщения в диалоге №42 прочитанными и покажи последние 20»** → `bx24_im action=dialog_read_all` → `dialog_messages_list`.
+33. **«Создай счёт по сделке #456, стадия "Оплачено"»** → `bx24_crm_invoices action=add` (entityTypeId=31, OWNER_ID=456) → `update` (STAGE_ID).
+34. **«Добавь реквизиты компании для компании #88 — ИНН, КПП и счёт»** → `bx24_crm_requisites action=preset_list` → `add` (presetId) → `bankdetail_add`.
+35. **«Свяжи реквизиты №10 со сделкой #456»** → `bx24_crm_requisites action=link_register` (entityTypeId=2, entityId=456).
+36. **«Создай список обзвона "Мартовская кампания" из лидов [1,2,3] и начни звонить»** → `bx24_crm_calllists action=add` (ENTITY_TYPE=LEAD, ID лидов) → `start`.
+37. **«Как сделки переходили по стадиям в этом месяце? покажи движение воронки»** → `bx24_crm_stagehistory action=list` (фильтр по ownerId/category и дате).
+38. **«Добавь адрес доставки для контакта #12»** → `bx24_crm_addresses action=add` (type + поля адреса) → при необходимости `byclient`.
+39. **«Запусти правило автоматизации "Уведомить менеджера" для лида #100»** → `bx24_crm_automation action=trigger` (DOCUMENT_ID, code) или `trigger_execute` (id).
+40. **«Позвони клиенту на +7 495 … с портала и проиграй голосовое приветствие»** → `bx24_telephony action=voximplant_infocall_startwithsound` (FROM, TO, FILE) или `voximplant_callback_start`.
+41. **«Подпишись на событие `onCrmLeadAdd`, чтобы мой обработчик работал на новые лиды»** → `bx24_events action=bind` (event, handler, auth).
+42. **«Добавь 50 лидов из этого списка одним запросом, затем свяжи каждый со сделкой через ссылки на результаты»** → `bx24_batch` с `cmd: { lead_0: "crm.lead.add?fields[...]", deal_0: "crm.deal.add?fields[CONTACT_ID]=$result[lead_0]" }` (≤50 команд).
+43. **«Вызови `entity.item.property.add` напрямую — он ещё не обёрнут в инструмент»** → `bx24_call method=entity.item.property.add` (escape-hatch; произвольные params).
+44. **«Удали компанию #88, но сначала подтверди»** → первый `bx24_crm_companies action=delete id=88` вернёт `requiresConfirmation` preview (при `BX24_CONFIRM_DESTRUCTIVE=true`); повтори с `confirm: true` для выполнения.
+45. **«Кто сегодня пытался что-то удалить? покажи отказанные попытки»** → посмотри `audit.log`: строки с `result: "denied"` — деструктивные вызовы, запрошенные без подтверждения, плюс `ok`/`error` для выполненных.
+
+## Двухфазное подтверждение (деструктивные действия)
+
+При `BX24_CONFIRM_DESTRUCTIVE=true` сервер не выполняет деструктивное действие (delete, remove, complete, close, kick, cancel, stop, mute, unbind, clear, markDeleted, kill, …) с первого вызова. Вместо этого он возвращает структурированный `requiresConfirmation` preview и пишет в аудит строку с `result: "denied"`. Повтори тот же вызов с `confirm: true` для выполнения — сервер выполнит его и запишет `result: "ok"`/`"error"`.
+
+- Это касается **всех** инструментов, включая generic: `bx24_batch` (любая команда, метод которой подходит под деструктивные ключевые слова) и `bx24_call` (любой метод, выглядящий деструктивным).
+- `bx24_call` отклоняет `method: "batch"` — используй `bx24_batch`, который обеспечивает лимит 50 команд и то же подтверждение.
 
 ## Частые ошибки
 

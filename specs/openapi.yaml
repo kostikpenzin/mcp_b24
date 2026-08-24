@@ -4,7 +4,7 @@
 openapi: 3.1.0
 info:
   title: mcp-b24
-  version: 0.3.0
+  version: 0.3.2
   description: |
     Full Bitrix24 MCP server — 39 domain tools (CRM, Tasks, Disk, IM, Calendar, HR,
     Smart processes, Mail, Telephony, Workflows, Events, Open Lines, Chat Bots,

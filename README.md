@@ -5,7 +5,7 @@
 [![npm version](https://img.shields.io/npm/v/mcp-b24.svg)](https://www.npmjs.com/package/mcp-b24)
 [![npm downloads](https://img.shields.io/npm/dm/mcp-b24.svg)](https://www.npmjs.com/package/mcp-b24)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![tests](https://img.shields.io/badge/tests-75-brightgreen.svg)](./CHANGELOG.md)
+[![tests](https://img.shields.io/badge/tests-88-brightgreen.svg)](./CHANGELOG.md)
 [![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A518-green.svg)](https://nodejs.org/)
 [![MCP protocol](https://img.shields.io/badge/protocol-MCP-purple.svg)](https://modelcontextprotocol.io)
 [![platform](https://img.shields.io/badge/platform-Bitrix24-blue.svg)](https://www.bitrix24.com)

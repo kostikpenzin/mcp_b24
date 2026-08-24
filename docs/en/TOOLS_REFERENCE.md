@@ -83,8 +83,8 @@ flowchart LR
 
 | Tool | Description |
 |---|---|
-| `bx24_batch` | Combine up to 50 REST calls in one request; reference earlier results via `$result[key]`. |
-| `bx24_call` | Invoke any Bitrix24 REST method by name with arbitrary `params` (escape-hatch). |
+| `bx24_batch` | Combine up to 50 REST calls in one request; reference earlier results via `$result[key]`. Destructive commands (delete/remove/complete/…) require `confirm: true` when `BX24_CONFIRM_DESTRUCTIVE=true`. |
+| `bx24_call` | Invoke any Bitrix24 REST method by name with arbitrary `params` (escape-hatch). Destructive methods require `confirm: true` when `BX24_CONFIRM_DESTRUCTIVE=true`; `method: "batch"` is rejected (use `bx24_batch`). |
 
 ## Common parameters glossary
 

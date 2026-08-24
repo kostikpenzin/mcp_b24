@@ -67,8 +67,8 @@
 
 | Инструмент | Действия | Описание |
 |---|---|---|
-| `bx24_batch` | (без action) `cmd` | Объединяет до 50 REST-вызовов; ссылки на предыдущие результаты через `$result[key]`. |
-| `bx24_call` | (без action) `method`, `params` | Вызов любого REST-метода Битрикс24 по имени — escape-hatch для операций вне обёрнутых. |
+| `bx24_batch` | (без action) `cmd` | Объединяет до 50 REST-вызовов; ссылки на предыдущие результаты через `$result[key]`. Деструктивные команды (delete/remove/complete/…) требуют `confirm: true` при `BX24_CONFIRM_DESTRUCTIVE=true`. |
+| `bx24_call` | (без action) `method`, `params` | Вызов любого REST-метода Битрикс24 по имени — escape-hatch для операций вне обёрнутых. Деструктивные методы требуют `confirm: true` при `BX24_CONFIRM_DESTRUCTIVE=true`; `method: "batch"` отклоняется (используйте `bx24_batch`). |
 
 ## Словарь общих параметров
 

@@ -93,6 +93,16 @@ export function createActionTool(
         } catch {
           // pre-check is best-effort; never block the confirmation flow
         }
+        // Record the refused attempt so denied destructive calls are visible
+        // in the audit log (result: "denied"), not silently dropped.
+        client.recordDestructive({
+          tool: name,
+          action,
+          restMethod: mapping.restMethod,
+          params: maskParams(args),
+          result: "denied",
+          durationMs: 0,
+        });
         const ctx: ConfirmContext = {
           requiresConfirmation: true,
           description: t(client.lang(), "confirmRequired", { action, tool: name }),

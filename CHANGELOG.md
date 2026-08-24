@@ -1,4 +1,20 @@
 # Changelog
+## 0.3.2 (2026-08-25)
+
+Patch release fixing four runtime bugs found by deep code review (the test suite passed but did not exercise these paths), plus documentation improvements.
+
+### Fixed
+- **HTTP transport was broken after the first request** (`src/transport.ts`): the Streamable HTTP transport is single-use in stateless mode — the SDK throws `Stateless transport cannot be reused across requests` when a transport is reused, so every request after the first returned `500 Internal error`. A fresh `StreamableHTTPServerTransport` is now created and connected per request, then closed when it completes. The `httpPath` match also now compares the pathname exactly instead of using `startsWith` (so `/mcp` no longer matches `/mcpanything`).
+- **OAuth refresh race condition** (`src/api-client.ts`): concurrent 401s each kicked off a separate `refresh_token` POST; since Bitrix24 rotates and invalidates the refresh token on every successful refresh, all but one caller failed with `AUTH_REFRESH_FAILED`. Refresh is now single-flighted so concurrent callers share one refresh.
+- **Destructive confirmation bypass via `bx24_call`** (`src/tools/call.ts`): `method: "batch"` was reachable through the escape-hatch, skipping the 50-command cap and all destructive checks. It is now rejected (callers are redirected to `bx24_batch`), and the destructive-keyword detection is aligned with `framework.ts` (covers `complete`/`close`/`mute`/`unbind`/`clear`/…, not just `delete`/`remove`). Destructive `bx24_call` invocations are now recorded in the audit log.
+- **Destructive confirmation bypass via `bx24_batch`** (`src/tools/batch.ts`): a batch issuing `crm.lead.delete?id=…` etc. executed without a `confirm` flag and was never audited. Each command's method is now scanned against the destructive keywords, and when `BX24_CONFIRM_DESTRUCTIVE` is enabled the batch requires `confirm: true` and writes a destructive audit entry.
+- **Denied attempts now audited** (`src/tools/framework.ts`, `batch.ts`, `call.ts`): when `BX24_CONFIRM_DESTRUCTIVE=true` and a destructive action is requested without `confirm: true`, a `result: "denied"` audit row is now written (previously the `denied` variant existed in `AuditEntry` but was never produced, so refused destructive attempts were invisible in the audit log).
+
+### Documentation
+- USER_GUIDE (EN + RU): everyday examples expanded 28 → 42, now covering every tool group — generic (`bx24_batch` with `$result[]` references, `bx24_call` escape-hatch), projects, conferences, IM, departments/HR/time, events, marketing, telephony, invoices, requisites, call lists, stage history, duplicates, addresses, plus the two-phase destructive confirmation flow and audit-log inspection.
+- TOOLS_REFERENCE (EN + RU): `bx24_batch` and `bx24_call` rows now note destructive-command confirmation behavior.
+- AUDIT_LOG (EN + RU): the audit flow now documents the `denied` row written for refused destructive attempts.
+
 ## 0.3.1 (2026-08-25)
 
 Bilingual EN/RU polish after 0.3.0: all tool descriptions now carry the unified `RU/EN:` natural-language marker (incl. `bx24_batch`, `bx24_call`), so the AI agent maps Russian and English phrases to the right tool+action consistently across all 41 tools.
@@ -44,7 +60,6 @@ Major API coverage expansion: **41 tools** (was 30), **~870 actions** (was ~290)
 ### Infrastructure
 
 - `src/tools/params.ts` — shared param helpers for new entity types (quotes, currency, webform, catalog extended, open lines, bots, calendar resources, etc.).
-- Tests: 86 (was 75); routing cases added for all 11 new tools; action↔mapping parity test validates every action resolves.
 - Documentation: README, TOOLS_REFERENCE (RU + EN), package.json description updated to 41 tools / ~870 actions.
 - Tests: 88 (was 75); added `endpoint-coverage.test.ts` — parses source mappings and instruments fetch to verify every one of the 872 action→REST-method routings; routing cases added for all 11 new tools; action↔mapping parity test validates every action resolves.
 

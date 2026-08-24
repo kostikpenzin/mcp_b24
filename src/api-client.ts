@@ -30,6 +30,10 @@ export class Bitrix24ApiClient {
   private bucket: TokenBucket;
   private logger: Logger;
   private audit: AuditLog;
+  // Single-flight guard: concurrent 401s share one refresh. Bitrix24 rotates
+  // the refresh_token on every successful refresh and invalidates the old one,
+  // so uncoordinated parallel refreshes would fail with AUTH_REFRESH_FAILED.
+  private refreshPromise?: Promise<void>;
 
   constructor(private config: Bitrix24Config) {
     this.cachedAccessToken = config.accessToken;
@@ -239,6 +243,16 @@ export class Bitrix24ApiClient {
   }
 
   private async refreshAccessToken(): Promise<void> {
+    // Reuse an in-flight refresh so concurrent callers don't each POST a
+    // (now-rotated) refresh_token and fail with invalid_grant.
+    if (this.refreshPromise) return this.refreshPromise;
+    this.refreshPromise = this.doRefreshAccessToken().finally(() => {
+      this.refreshPromise = undefined;
+    });
+    return this.refreshPromise;
+  }
+
+  private async doRefreshAccessToken(): Promise<void> {
     if (!this.canRefresh()) {
       throw new Bitrix24ApiError(401, t(this.config.lang, "authNotConfigured"), "AUTH_NOT_CONFIGURED");
     }

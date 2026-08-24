@@ -1,5 +1,4 @@
 # Example: run mcp-b24 over Streamable HTTP in Docker.
-version: "3.9"
 services:
   bitrix24-mcp:
     build: .

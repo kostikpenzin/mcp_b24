@@ -8,7 +8,17 @@ import { API_VERSION } from "../constants.js";
 // Escape-hatch: call any Bitrix24 REST method by name with arbitrary params.
 // Covers methods not yet wrapped in dedicated tools. Destructive confirmation
 // is applied when the method name looks destructive (delete/remove/...).
-const DESTRUCTIVE_METHOD_RE = /\.(delete|remove|detach|kick|cancel|stop|close)\b/i;
+// Keep in sync with DESTRUCTIVE_KEYWORDS in framework.ts.
+const DESTRUCTIVE_KEYWORDS = [
+  "delete", "remove", "detach", "exclude", "stop", "cancel",
+  "reject", "complete", "close", "mute", "leave", "kick", "destroy",
+  "markdeleted", "kill", "unbind", "clear",
+];
+
+function isDestructiveMethod(method: string): boolean {
+  const lower = method.toLowerCase();
+  return DESTRUCTIVE_KEYWORDS.some((kw) => lower.includes(kw));
+}
 
 export function createCallTool(client: Bitrix24ApiClient): ToolDefinition {
   return {
@@ -40,12 +50,27 @@ export function createCallTool(client: Bitrix24ApiClient): ToolDefinition {
       if (!/^[a-z][a-z0-9._-]*$/i.test(method)) {
         return errorResult(`Invalid method name: ${method}`);
       }
+      // Route `batch` to the dedicated bx24_batch tool, which enforces the
+      // 50-command cap and destructive-action confirmation. Allowing it here
+      // would let a caller bypass both limits and all safety checks.
+      if (method.toLowerCase() === "batch") {
+        return errorResult("Use the bx24_batch tool for the 'batch' method (it enforces the 50-command cap and destructive-action confirmation).");
+      }
 
+      const destructive = isDestructiveMethod(method);
       if (
         client.isConfirmDestructive() &&
-        DESTRUCTIVE_METHOD_RE.test(method) &&
+        destructive &&
         !args.confirm
       ) {
+        client.recordDestructive({
+          tool: "bx24_call",
+          action: method,
+          restMethod: method,
+          params: { method, params: args.params },
+          result: "denied",
+          durationMs: 0,
+        });
         return {
           content: [{ type: "text", text: `⚠️ Confirmation required.\n\nMethod "${method}" looks destructive. Call again with "confirm": true to proceed.` }],
           isError: true,
@@ -54,7 +79,26 @@ export function createCallTool(client: Bitrix24ApiClient): ToolDefinition {
 
       const params = (args.params as Record<string, unknown>) || {};
       const opts = args.httpVerb ? { httpVerb: args.httpVerb as "GET" | "POST" } : undefined;
-      const result = await client.callMethod(method, params, opts);
+      const started = Date.now();
+      let result: unknown;
+      let resultStatus: "ok" | "error" = "ok";
+      try {
+        result = await client.callMethod(method, params, opts);
+      } catch (err) {
+        resultStatus = "error";
+        throw err;
+      } finally {
+        if (destructive) {
+          client.recordDestructive({
+            tool: "bx24_call",
+            action: method,
+            restMethod: method,
+            params: { method, params },
+            result: resultStatus,
+            durationMs: Date.now() - started,
+          });
+        }
+      }
       return successResult(result);
     },
   };

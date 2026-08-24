@@ -16,18 +16,16 @@ export async function startStdio(server: Server): Promise<() => Promise<void>> {
 
 /**
  * Connect the MCP server over Streamable HTTP (stateless mode) at the configured
- * host/port/path. Each request is handled by a single transport bound to the
- * server; no session state is kept across requests.
+ * host/port/path. The SDK forbids reusing a stateless transport across requests,
+ * so a fresh StreamableHTTPServerTransport is created and connected to the shared
+ * server for each incoming request, then closed when the request completes.
  */
 export async function startHttp(
   server: Server,
   cfg: Bitrix24Config,
 ): Promise<() => Promise<void>> {
-  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-  await server.connect(transport);
-
   const httpServer = http.createServer(async (req, res) => {
-    if (cfg.httpPath && req.url && !req.url.startsWith(cfg.httpPath)) {
+    if (cfg.httpPath && req.url && new URL(req.url, "http://dummy").pathname !== cfg.httpPath) {
       res.writeHead(404, { "content-type": "application/json" });
       res.end(JSON.stringify({ error: "Not found" }));
       return;
@@ -48,7 +46,10 @@ export async function startHttp(
         return;
       }
     }
+    // A stateless transport is single-use; create a fresh one per request.
+    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
     try {
+      await server.connect(transport);
       await transport.handleRequest(req, res, parsedBody);
     } catch (err) {
       if (!res.headersSent) {
@@ -56,6 +57,8 @@ export async function startHttp(
         res.end(JSON.stringify({ jsonrpc: "2.0", error: { code: -32603, message: "Internal error" }, id: null }));
       }
       console.error("HTTP transport error:", err);
+    } finally {
+      await transport.close();
     }
   });
 
@@ -65,7 +68,6 @@ export async function startHttp(
   console.log(`Bitrix24 MCP HTTP transport listening on http://${cfg.httpHost}:${cfg.httpPort}${cfg.httpPath}`);
 
   return async () => {
-    await transport.close();
     await server.close();
     await new Promise<void>((resolve) => httpServer.close(() => resolve()));
   };
