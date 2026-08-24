@@ -13,7 +13,7 @@ const DESTRUCTIVE_METHOD_RE = /\.(delete|remove|detach|kick|cancel|stop|close)\b
 export function createCallTool(client: Bitrix24ApiClient): ToolDefinition {
   return {
     name: "bx24_call",
-    description: `Universal Bitrix24 REST call: invoke any REST method by name with arbitrary params. Escape-hatch for methods not covered by dedicated tools (${API_VERSION}). Natural language: вызови метод, сделай произвольный вызов, вызови rest-метод / call rest method, invoke method, raw rest call.`,
+    description: `Universal Bitrix24 REST call: invoke any REST method by name with arbitrary params. Escape-hatch for methods not covered by dedicated tools (${API_VERSION}). RU/EN: вызови метод, сделай произвольный вызов, вызови rest-метод / call rest method, invoke method, raw rest call.`,
     inputSchema: {
       type: "object",
       properties: {

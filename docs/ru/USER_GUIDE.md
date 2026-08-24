@@ -18,7 +18,7 @@
 4. **Не знаете поля — спросите**: «покажи поля лида» → агент вызовет `action=fields`.
 5. **Массовое — через batch**: «создай 5 лидов сразу» — агент использует `bx24_batch`.
 
-## 16 повседневных кейсов (простым языком)
+## 28 повседневных кейсов (простым языком)
 
 1. **«Покажи мои задачи на сегодня»** → `bx24_tasks action=list` (RESPONSIBLE_ID=current, DEADLINE=today).
 2. **«Создай встречу с Петровым завтра в 15:00»** → `bx24_calendar action=event_add`.
@@ -36,6 +36,18 @@
 14. **«Добавь товар "Стул", цена 5000, остаток 20»** → `bx24_crm_products action=product_add` + `price_add`.
 15. **«Покажи всех сотрудников отдела маркетинга»** → `bx24_departments` → `bx24_users action=search`.
 16. **«Открой рабочий день / закрой день с отчётом»** → `bx24_time action=status_open / status_close`.
+17. **«Сделай коммерческое предложение по сделке #456 и приложи PDF»** → `bx24_crm_quotes action=add` → `bx24_crm_documents action=document_add` (шаблон → документ).
+18. **«Сгенерируй договор из шаблона №3 для компании #88»** → `bx24_crm_documents action=document_add` (templateId, entityId, entityType).
+19. **«Добавь валюту EUR, курс 100, и сделай её базовой»** → `bx24_crm_currency action=add` → `base_set`.
+20. **«Покажи все заявки с веб-форм за неделю»** → `bx24_crm_webform action=result_list` (фильтр по дате).
+21. **«Откуда пришёл лид? покажи UTM»** → `bx24_crm_tracking action=trace_list` (фильтр по ENTITY_ID).
+22. **«Проведи приходный складской документ, +50 стульев»** → `bx24_crm_products action=document_add` → `document_conduct` (с подтверждением).
+23. **«Настрой шаблон recurring-сделки — ежемесячное продление»** → `bx24_crm_deals action=recurring_add` (dealId + расписание).
+24. **«Открой линию поддержки и ответь на ждущий диалог»** → `bx24_openlines action=config_list` → `operator_answer`.
+25. **«Зарегистрируй чат-бот "Помощник", который отвечает на /faq»** → `bx24_bots action=bot_register` → `command_register`.
+26. **«Добавь дело "Отправить счёт" к сделке #456»** → `bx24_crm_activities action=todo_add` (OWNER_ID, OWNER_TYPE_ID=2).
+27. **«Преврати письмо в задачу для Анны»** → `bx24_mail action=message_createtask` (messageId).
+28. **«Закрепи задачу #77 за потоком "Срочные" и переведи в стадию "На проверке"»** → `bx24_tasks action=addToFlow` → `moveToStage`.
 
 ## Частые ошибки
 

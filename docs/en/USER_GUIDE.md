@@ -18,7 +18,7 @@ Unlike the official Bitrix24 MCP (documentation only), this server **actually ex
 4. **Don't know the fields? ask**: "Show lead fields" → the agent calls `action=fields`.
 5. **Bulk → batch**: "Create 5 leads at once" → the agent uses `bx24_batch`.
 
-## 16 everyday cases (plain language)
+## 28 everyday cases (plain language)
 
 1. **"Show my tasks for today"** → `bx24_tasks action=list` (RESPONSIBLE_ID=current, DEADLINE=today).
 2. **"Create a meeting with Petrov tomorrow at 15:00"** → `bx24_calendar action=event_add`.
@@ -36,6 +36,18 @@ Unlike the official Bitrix24 MCP (documentation only), this server **actually ex
 14. **"Add a product 'Chair', price 5000, stock 20"** → `bx24_crm_products action=product_add` + `price_add`.
 15. **"Show everyone in the marketing department"** → `bx24_departments` → `bx24_users action=search`.
 16. **"Open the working day / close the day with a report"** → `bx24_time action=status_open / status_close`.
+17. **"Make a quote for deal #456 and attach the PDF"** → `bx24_crm_quotes action=add` → `bx24_crm_documents action=document_add` (template → document).
+18. **"Generate the contract from template #3 for company #88"** → `bx24_crm_documents action=document_add` (templateId, entityId, entityType).
+19. **"Add currency EUR, rate 100, and set it as base"** → `bx24_crm_currency action=add` → `base_set`.
+20. **"Show all webform submissions this week"** → `bx24_crm_webform action=result_list` (filter by date).
+21. **"Which source brought the lead? show UTM"** → `bx24_crm_tracking action=trace_list` (filter by ENTITY_ID).
+22. **"Conduct the warehouse receipt document, +50 chairs"** → `bx24_crm_products action=document_add` → `document_conduct` (with confirmation).
+23. **"Set up a recurring deal template — monthly renewal"** → `bx24_crm_deals action=recurring_add` (dealId + schedule).
+24. **"Open a support line and answer the waiting dialog"** → `bx24_openlines action=config_list` → `operator_answer`.
+25. **"Register a chat bot 'Helpdesk' that answers /faq"** → `bx24_bots action=bot_register` → `command_register`.
+26. **"Add a todo 'Send invoice' to deal #456"** → `bx24_crm_activities action=todo_add` (OWNER_ID, OWNER_TYPE_ID=2).
+27. **"Turn the email into a task for Anna"** → `bx24_mail action=message_createtask` (messageId).
+28. **"Pin task #77 to the 'Urgent' flow and move to the 'In review' stage"** → `bx24_tasks action=addToFlow` → `moveToStage`.
 
 ## Common issues
 

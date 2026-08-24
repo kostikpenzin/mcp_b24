@@ -10,7 +10,7 @@ import { API_VERSION } from "../constants.js";
 export function createBatchTool(client: Bitrix24ApiClient): ToolDefinition {
   return {
     name: "bx24_batch",
-    description: `Bitrix24 batch: combine multiple REST calls into one request. Method batch (${API_VERSION}). Reference earlier results inside later commands with $result[key]. Natural language: пакет, батч, несколько вызовов, объединить вызовы / batch, combine calls, multiple calls.`,
+    description: `Bitrix24 batch: combine multiple REST calls into one request. Method batch (${API_VERSION}). Reference earlier results inside later commands with $result[key]. RU/EN: пакет, батч, несколько вызовов, объединить вызовы / batch, combine calls, multiple calls.`,
     inputSchema: {
       type: "object",
       properties: {
