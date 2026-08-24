@@ -1,0 +1,44 @@
+# OpenAPI 3.1 overview of the mcp-b24 MCP server tools.
+# This is a high-level hand-maintained overview (not auto-generated).
+# Per-tool schemas live in the MCP tool inputSchema (see src/tools/).
+openapi: 3.1.0
+info:
+  title: mcp-b24
+  version: 0.2.0
+  description: |
+    Full Bitrix24 MCP server — 28 domain tools (CRM, Tasks, Disk, IM, Calendar, HR,
+    Smart processes, Mail, Telephony, Workflows, Events) plus generic bx24_batch and
+    bx24_call, exposing ~290 actions over the Bitrix24 REST API. Each domain tool is
+    "action-based": the `action` enum selects the REST operation.
+  license:
+    name: MIT
+servers:
+  - url: http://127.0.0.1:3000/mcp
+    description: Streamable HTTP transport (when BX24_TRANSPORT=http)
+tags:
+  - name: crm
+  - name: collab
+  - name: org
+  - name: biz
+  - name: generic
+paths:
+  /tools/list:
+    get:
+      tags: [generic]
+      summary: List all 30 tools (28 + bx24_batch + bx24_call)
+      responses: { "200": { description: tool list } }
+components:
+  schemas:
+    ActionRequest:
+      type: object
+      required: [action]
+      properties:
+        action:
+          type: string
+          description: Operation selector (enum per tool).
+        confirm:
+          type: boolean
+          description: Set true to authorize destructive actions when BX24_CONFIRM_DESTRUCTIVE=true.
+  securitySchemes:
+    webhook: { type: apiKey, in: query, name: auth }
+    oauth:   { type: oauth2, flows: { authorizationCode: { authorizationUrl: https://oauth.bitrix.info/oauth/authorize, tokenUrl: https://oauth.bitrix.info/oauth/token/ } } }

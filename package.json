@@ -1,0 +1,66 @@
+{
+  "name": "mcp-b24",
+  "version": "0.2.0",
+  "description": "Full Bitrix24 MCP server: CRM, Disk, IM, Tasks, Calendar, HR, Smart processes, Mail, Telephony, Workflows. 28 tools, ~290 actions, RU/EN, webhook + OAuth 2.0, MIT.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-b24": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    ".env.example",
+    "docs",
+    "i18n",
+    "specs"
+  ],
+  "scripts": {
+    "build": "tsc && shx chmod +x dist/*.js",
+    "prepare": "npm run build",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run clean && npm run build && npm test"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "bitrix24",
+    "bx24",
+    "model-context-protocol",
+    "crm",
+    "tasks",
+    "im",
+    "disk",
+    "calendar"
+  ],
+  "license": "MIT",
+  "author": "Penzin Konstantin <penzin85@gmail.com> (https://github.com/kostikpenzin)",
+  "homepage": "https://github.com/kostikpenzin/mcp_b24#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kostikpenzin/mcp_b24.git"
+  },
+  "mcpName": "io.github.kostikpenzin/mcp-b24",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "rimraf": "^6.0.0",
+    "shx": "^0.4.0",
+    "typescript": "^5.9.0",
+    "vitest": "^4.1.11"
+  }
+}

@@ -1,0 +1,21 @@
+# Example: run mcp-b24 over Streamable HTTP in Docker.
+version: "3.9"
+services:
+  bitrix24-mcp:
+    build: .
+    image: mcp-b24:latest
+    restart: unless-stopped
+    environment:
+      BX24_MODE: webhook
+      BX24_WEBHOOK_URL: https://acme.bitrix24.ru/rest/1/abc123def/
+      BX24_CONFIRM_DESTRUCTIVE: "true"
+      BX24_DEFAULT_LANG: ru
+      BX24_AUDIT_LOG: /data/audit.log
+      BX24_TRANSPORT: http
+      BX24_HTTP_HOST: 0.0.0.0
+      BX24_HTTP_PORT: "3000"
+      BX24_HTTP_PATH: /mcp
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/data
