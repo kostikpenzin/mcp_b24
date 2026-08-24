@@ -4,6 +4,18 @@
 
 Путь задаётся переменной окружения `BX24_AUDIT_LOG` (по умолчанию отключён). Рекомендуется `./audit.log` или путь в защищённом каталоге. При отсутствии переменной аудит не пишется (no-op).
 
+## Поток аудита
+
+```mermaid
+flowchart TD
+    A["деструктивное действие"] --> B{"BX24_CONFIRM_DESTRUCTIVE?"}
+    B -->|выкл| E["выполнить → fetch"]
+    B -->|вкл, без confirm| P["requiresConfirmation preview<br/>НЕ выполняется → без записи"]
+    P --> U["пользователь подтверждает"] --> C["confirm:true → выполнить"]
+    B -->|вкл, confirm:true| E
+    E --> W["запись JSONL<br/>result: ok | error"]
+```
+
 ## Что пишется
 
 - Все деструктивные действия (помеченные `destructive` или содержащие ключевые слова delete/remove/complete/leave/kick/cancel/stop/close/mute/unbind/clear/markDeleted/kill).

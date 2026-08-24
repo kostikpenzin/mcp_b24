@@ -288,7 +288,7 @@ npm run build
 
 Each domain tool is **action-based**: the `action` enum selects the operation
 (e.g. `action: "add"`, `"list"`, `"update"`, `"delete"`). Full action list:
-[`docs/TOOLS_REFERENCE.md`](./docs/TOOLS_REFERENCE.md).
+[`docs/en/TOOLS_REFERENCE.md`](./docs/en/TOOLS_REFERENCE.md) (RU: [`docs/ru/`](./docs/ru/README.md)).
 
 ## Capabilities
 
@@ -413,7 +413,7 @@ mcp_b24/
 │       ├── collab/       # 7 collab tools
 │       ├── org/         # 4 org tools
 │       └── biz/          # 7 biz tools
-├── docs/                 # USER_GUIDE, SELLER_GUIDE, DEVELOPER_GUIDE, TOOLS_REFERENCE, AUDIT_LOG
+├── docs/                 # en/ + ru/ (USER_GUIDE, SELLER_GUIDE, DEVELOPER_GUIDE, TOOLS_REFERENCE, AUDIT_LOG)
 ├── i18n/README.ru.md     # Russian README
 ├── specs/openapi.yaml    # OpenAPI overview
 ├── Dockerfile            # Multi-stage Docker build

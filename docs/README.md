@@ -1,27 +1,40 @@
-# Документация mcp-b24
+# mcp-b24 — Documentation
 
-Полный MCP-сервер над REST API Битрикс24: 28 доменных инструментов + `bx24_batch` + `bx24_call`, ~290 действий, авторизация webhook/OAuth, локализация RU/EN, аудит деструктивных операций.
+Full MCP server over the Bitrix24 REST API: **30 tools**, ~290 actions, webhook + OAuth 2.0, RU/EN, MIT.
 
-Документация разделена по аудиториям (по ТЗ §11):
+**Languages:** English · [Русский](./ru/README.md)
 
-| Файл | Аудитория | Назначение |
+## Architecture
+
+```mermaid
+flowchart TD
+    A["AI client<br/>Claude / Cursor / VS Code / Codex / HTTP"] -->|JSON-RPC| T["Transport<br/>stdio · Streamable HTTP"]
+    T --> S["MCP Server<br/>server.ts"]
+    S -->|"tools/list · tools/call"| F["Tool framework<br/>framework.ts<br/>action → ActionMapping"]
+    F -->|validate + destructive confirm| C["Bitrix24ApiClient<br/>api-client.ts"]
+    C -->|token-bucket + backoff| B[("Bitrix24 portal<br/>REST /rest/*.json")]
+    C -.->|audit JSONL| L[("BX24_AUDIT_LOG")]
+    C -.->|OAuth refresh| O["oauth.bitrix.info<br/>+ client_endpoint"]
+```
+
+## Documentation by audience
+
+| Document | Audience | Purpose |
 |---|---|---|
-| [USER_GUIDE.md](USER_GUIDE.md) | Обычные сотрудники | Установка, общение с AI-агентом, повседневные кейсы |
-| [SELLER_GUIDE.md](SELLER_GUIDE.md) | Менеджеры CRM / РОП / HR / админы | Роле-специфичные workflows и рецепты |
-| [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | Разработчики | Архитектура, data-driven framework, добавление инструмента, тесты, сборка, публикация |
-| [TOOLS_REFERENCE.md](TOOLS_REFERENCE.md) | Все | Полный реестр 30 инструментов и действий |
-| [AUDIT_LOG.md](AUDIT_LOG.md) | Админы / безопасники | Формат и политика аудита деструктивных операций |
+| [USER_GUIDE.md](./en/USER_GUIDE.md) | Everyday employees | Install, talk to the agent, everyday cases |
+| [SELLER_GUIDE.md](./en/SELLER_GUIDE.md) | CRM managers / ROP / HR / admins | Role-specific workflows & recipes |
+| [DEVELOPER_GUIDE.md](./en/DEVELOPER_GUIDE.md) | Developers | Architecture, data-driven framework, adding tools, tests, publish |
+| [TOOLS_REFERENCE.md](./en/TOOLS_REFERENCE.md) | Everyone | Full registry of 30 tools and actions |
+| [AUDIT_LOG.md](./en/AUDIT_LOG.md) | Admins / security | JSONL audit format & policy |
 
-Дополнительно:
-- Английский README — [`../README.md`](../README.md). Русский README — [`../i18n/README.ru.md`](../i18n/README.ru.md).
-- OpenAPI-обзор — [`specs/openapi.yaml`](../specs/openapi.yaml).
+Russian versions: [`ru/`](./ru/README.md).
 
-## Быстрый старт
+## Quick start
 
 ```bash
 npm install -g mcp-b24
-export BX24_WEBHOOK_URL="https://ВАШ_ПОРТАЛ.bitrix24.ru/rest/1/КОД/"
+export BX24_WEBHOOK_URL="https://YOUR_PORTAL.bitrix24.ru/rest/1/SECRET/"
 npx -y mcp-b24
 ```
 
-Конфиги клиентов (Claude Desktop, Cursor, VS Code, Codex CLI, Cline/Roo) — в корневом [README.md](../README.md).
+Client configs (Claude Desktop, Cursor, VS Code, Codex CLI, Cline/Roo, Docker, HTTP) — see the root [README](../README.md).

@@ -251,7 +251,7 @@ npm run build
 | `bx24_call` | Вызов любого REST-метода по имени (escape-hatch) | generic |
 
 Каждый доменный инструмент **action-based**: операция выбирается параметром
-`action`. Полный список действий — [`docs/TOOLS_REFERENCE.md`](../docs/TOOLS_REFERENCE.md).
+`action`. Полный список действий — [`docs/ru/TOOLS_REFERENCE.md`](../docs/ru/TOOLS_REFERENCE.md) (EN: [`docs/en/`](../docs/README.md)).
 
 ## Возможности
 
@@ -347,7 +347,7 @@ mcp_b24/
 │       ├── index.ts      # регистрация 30 инструментов
 │       ├── batch.ts / call.ts
 │       ├── crm/  collab/  org/  biz/
-├── docs/                 # USER_GUIDE, SELLER_GUIDE, DEVELOPER_GUIDE, TOOLS_REFERENCE, AUDIT_LOG
+├── docs/                 # en/ + ru/ (USER_GUIDE, SELLER_GUIDE, DEVELOPER_GUIDE, TOOLS_REFERENCE, AUDIT_LOG)
 ├── i18n/README.ru.md     # этот файл
 ├── specs/openapi.yaml
 ├── Dockerfile / docker-compose.yml / .env.example

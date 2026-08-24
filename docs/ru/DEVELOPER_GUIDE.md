@@ -4,6 +4,32 @@
 
 ## Архитектура
 
+```mermaid
+flowchart TD
+    A["AI-клиент<br/>stdio | Streamable HTTP"] -->|JSON-RPC| S["Server<br/>server.ts<br/>instructions + ListTools/CallTool"]
+    S --> F["Фреймворк инструментов<br/>framework.ts<br/>action → ActionMapping<br/>AJV + destructive confirm + audit"]
+    F --> C["Bitrix24ApiClient<br/>api-client.ts<br/>webhook/OAuth + refresh + token-bucket + backoff + пагинация"]
+    C -->|"/rest/{method}.json"| B[("Портал Битрикс24<br/>REST 1.0 + 3.0")]
+    C -.->|JSONL| L[("BX24_AUDIT_LOG")]
+    C -.->|refresh| O["oauth.bitrix.info"]
+```
+
+```mermaid
+flowchart LR
+    A["handler(args)"] --> B{"action в enum?"}
+    B -->|нет| X1["ошибка AJV"]
+    B -->|да| C{"mapping есть?"}
+    C -->|нет| X2["Unknown action"]
+    C -->|да| D{"destructive &<br/>без confirm?"}
+    D -->|да| X3["requiresConfirmation preview"]
+    D -->|нет| E["buildRequestParams"]
+    E --> F{"isList?"}
+    F -->|да| G["client.list()"]
+    F -->|нет| H["client.callMethod()"]
+    G --> I["successResult"]
+    H --> I
+```
+
 ```
 AI-клиент (stdio | Streamable HTTP)
         │ JSON-RPC
@@ -63,6 +89,16 @@ interface ActionMapping {
 - **Batch** (`bx24_batch`): до 50 команд; учитывайте, что каждый вложенный вызов идёт в счётчик RPS.
 
 ## Деструктивные операции и аудит
+
+```mermaid
+flowchart TD
+    A["деструктивное действие<br/>(без confirm)"] --> B{"BX24_CONFIRM_DESTRUCTIVE?"}
+    B -->|выкл| E["выполнить → fetch"]
+    B -->|вкл, без confirm| P["requiresConfirmation preview<br/>(preCheck наполняет связанными сущностями)"]
+    P --> U["пользователь подтверждает"] --> C["повтор с confirm:true"]
+    C --> E
+    E --> A2["запись в JSONL-аудит<br/>(ok | error)"]
+```
 
 - При `BX24_CONFIRM_DESTRUCTIVE=true` деструктивный action без `confirm:true` возвращает структурированный `requiresConfirmation` preview и **не выполняется**. `preCheck` (если задан) наполняет preview связанными сущностями.
 - Каждое деструктивное действие пишется в `BX24_AUDIT_LOG` (JSONL) через `client.recordDestructive(...)`. Формат — см. [AUDIT_LOG.md](AUDIT_LOG.md).

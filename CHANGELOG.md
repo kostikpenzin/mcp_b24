@@ -1,4 +1,8 @@
 # Changelog
+n## 0.2.3 (2026-08-24)
+
+- Documentation is now bilingual: `docs/en/*` (English, default) + `docs/ru/*` (Russian), with Mermaid diagrams (architecture, data flow, auth, tool groups, destructive-confirm, audit flow).
+
 n## 0.2.2 (2026-08-24)
 
 - Removed `docs/superpowers/` (internal design spec) from the repository and published package.
