@@ -14,13 +14,14 @@
 [![secrets](https://img.shields.io/badge/secrets-none%20hardcoded-brightgreen.svg)](#security)
 [![malware](https://img.shields.io/badge/malware-none%20detected-brightgreen.svg)](#security)
 
-**30 tools** · **~290 actions** · **Bitrix24 REST 1.0 + 3.0** · **75 tests**
+**41 tools** · **~870 actions** · **Bitrix24 REST 1.0 + 3.0** · **88 tests**
 
 MCP server for the **Bitrix24** platform.
 Wraps the Bitrix24 REST API (CRM, tasks, chats, files, calendar, HR, smart
-processes, mail, telephony, workflows, events) into 30 tools your AI agent can
-call directly — and **executes real calls** on the portal (unlike the official
-Bitrix24 MCP, which only serves documentation).
+processes, mail, telephony, workflows, events, open lines, chat bots, document
+generator, quotes, currency, webforms, tracking, inventory) into 41 tools your
+AI agent can call directly — and **executes real calls** on the portal (unlike
+the official Bitrix24 MCP, which only serves documentation).
 
 [Installation](#installation) ·
 [Configuration](#mcp-client-configuration) ·
@@ -58,7 +59,7 @@ It is available as cloud (`*.bitrix24.ru` / `*.bitrix24.com`) and on-premise.
 
 | API | Version | Base Path | Auth | Modules |
 |-----|---------|-----------|------|---------|
-| Bitrix24 REST | **1.0 + 3.0** | `/rest/<method>.json` | incoming webhook or OAuth 2.0 | CRM, tasks, IM, disk, calendar, user, catalog, lists, mail, telephony, bizproc, HR, timeman, events |
+| Bitrix24 REST | **1.0 + 3.0** | `/rest/<method>.json` | incoming webhook or OAuth 2.0 | CRM, tasks, IM, disk, calendar, user, catalog, lists, mail, telephony, bizproc, HR, timeman, events, open lines, chat bots, document generator, quotes, currency, webforms, tracking, inventory |
 
 ## Installation
 
@@ -251,38 +252,49 @@ npm run build
 
 ## Tools Overview
 
-### 30 tools, ~290 actions
+### 41 tools, ~870 actions
 
 | Tool | Description | Group |
 |------|-------------|-------|
-| `bx24_crm_leads` | Leads: CRUD, contacts, user fields, convert | CRM |
-| `bx24_crm_deals` | Deals + pipelines/categories, product rows, contact bindings | CRM |
-| `bx24_crm_contacts` | Contacts: CRUD, company bindings, user fields | CRM |
-| `bx24_crm_companies` | Companies: CRUD, contact bindings, user fields | CRM |
+| `bx24_crm_leads` | Leads: CRUD, contacts, product rows, user fields, convert, card config | CRM |
+| `bx24_crm_deals` | Deals + pipelines/categories, product rows, contact bindings, recurring, user fields | CRM |
+| `bx24_crm_contacts` | Contacts: CRUD, company bindings, user fields, card config | CRM |
+| `bx24_crm_companies` | Companies: CRUD, contact bindings, user fields, card config | CRM |
 | `bx24_crm_invoices` | Invoices (SMART_INVOICE, entityTypeId=31) + stages | CRM |
-| `bx24_crm_products` | Catalog: products, sections, prices, stores, product rows | CRM |
-| `bx24_crm_activities` | Activities (calls/meetings/emails) + timeline | CRM |
-| `bx24_crm_requisites` | Requisites + presets + links | CRM |
-| `bx24_crm_duplicates` | Duplicate search & merge | CRM |
+| `bx24_crm_products` | Trade catalog: products, sections, prices, stores, price types, measures, VAT, ratios, inventory documents, properties, offers/SKU/services | CRM |
+| `bx24_crm_activities` | Activities (calls/meetings/emails) + todo + configurable + types + badges + full timeline | CRM |
+| `bx24_crm_requisites` | Requisites + presets + bank details + links + user fields | CRM |
+| `bx24_crm_duplicates` | Duplicate search & merge + status dictionaries + volatile types | CRM |
 | `bx24_smart_processes` | Smart processes: types + items (arbitrary entities) | CRM |
-| `bx24_tasks` | Tasks: lifecycle + checklists + comments + elapsed + flows + stages | collab |
-| `bx24_projects` | Groups/projects (social network) | collab |
-| `bx24_disk` | Disk: storages, folders, files, versions, external links | collab |
-| `bx24_im` | Messenger: messages, notifications, users, search, counters, recent | collab |
-| `bx24_im_chat` | Chats: create, members, title/color/avatar, mute, messages | collab |
+| `bx24_crm_quotes` | Quotes: CRUD, product rows, contact bindings, user fields | CRM |
+| `bx24_crm_documents` | Document generator: templates, documents, numerators, bindings, providers | CRM |
+| `bx24_crm_currency` | Currencies: CRUD, base currency, localizations | CRM |
+| `bx24_crm_webform` | Webforms + results + options | CRM |
+| `bx24_crm_tracking` | Tracking: traces, sources, channels | CRM |
+| `bx24_crm_automation` | CRM automation triggers | CRM |
+| `bx24_crm_calllists` | Call lists (cold-call dial lists) | CRM |
+| `bx24_crm_addresses` | CRM addresses: CRUD, by client, delete by filter | CRM |
+| `bx24_crm_stagehistory` | Stage movement history | CRM |
+| `bx24_tasks` | Tasks: lifecycle + checklists + comments + elapsed + flows + stages + planner + dependencies + user fields | collab |
+| `bx24_projects` | Groups/projects (social network) + members + subjects | collab |
+| `bx24_disk` | Disk: storages, folders, files, versions, sharing, external links, rights | collab |
+| `bx24_im` | Messenger: messages, notifications, users, search, counters, recent, departments, events v2, files v2 | collab |
+| `bx24_im_chat` | Chats: create, members, owner/manager, title/color/avatar, mute, messages | collab |
 | `bx24_conf` | Video conferences | collab |
-| `bx24_calendar` | Calendar: events, sections, meetings, resources, availability | collab |
-| `bx24_users` | Users: current, get, search, user fields, CRUD | org |
+| `bx24_calendar` | Calendar: events, sections, meetings, resources, availability, settings | collab |
+| `bx24_openlines` | IM open lines: configs, sessions, operators, CRM links, network | collab |
+| `bx24_bots` | Chat bots v2: registration, chats, messages, reactions, commands, files, events | collab |
+| `bx24_users` | Users: current, get, search, user fields (incl. list), CRUD | org |
 | `bx24_departments` | Departments / org structure | org |
-| `bx24_time` | Working time tracking (timeman) | org |
+| `bx24_time` | Working time tracking (timeman) + time control + network ranges + schedules + records | org |
 | `bx24_hr` | HR: employees, invite, dismiss, transfer | org |
-| `bx24_lists` | Universal lists (infoblocks) | biz |
-| `bx24_mail` | Mail: mailboxes, messages, send, reply, forward, filters | biz |
+| `bx24_lists` | Universal lists (infoblocks) + sections + field types | biz |
+| `bx24_mail` | Mail: mailboxes, messages, send/reply/forward, filters, services, message→task/calendar/chat/CRM | biz |
 | `bx24_reports` | Analytics & reports | biz |
 | `bx24_marketing` | Segments, broadcast, lead filters | biz |
-| `bx24_workflows` | Business processes & robots (bizproc) | biz |
-| `bx24_telephony` | Telephony: external lines, calls, SIP, voximplant | biz |
-| `bx24_events` | Event subscriptions + offline queue | biz |
+| `bx24_workflows` | Business processes & robots: templates, instances, tasks, robot/activity CRUD, events | biz |
+| `bx24_telephony` | Telephony: external lines/calls, SIP, voximplant (callbacks, info-calls, TTS, lines, stats) | biz |
+| `bx24_events` | Event subscriptions + offline queue + supported events list | biz |
 | `bx24_batch` | Combine up to 50 REST calls in one request (`$result[]` refs) | generic |
 | `bx24_call` | Invoke any Bitrix24 REST method by name (escape-hatch) | generic |
 
@@ -298,18 +310,28 @@ language and the AI agent maps it to the right tool and action.
 
 ### What you can do
 
-- **CRM** — create/find/update leads, contacts, companies, deals; move deals
-  across pipelines; manage activities (calls/meetings); product rows; custom
-  fields; requisites; find & merge duplicates; smart processes
+- **CRM** — create/find/update leads, contacts, companies, deals, quotes; move
+  deals across pipelines; manage activities (calls/meetings); product rows;
+  custom fields; requisites + bank details; find & merge duplicates; smart
+  processes; document generation; currencies; webforms; tracking; addresses;
+  call lists; automation triggers; stage history
 - **Tasks & projects** — create, complete, delegate, defer tasks; checklists;
-  comments; elapsed time; flows; manage groups/projects
+  comments; elapsed time; flows; kanban stages; planner; dependencies;
+  user fields; manage groups/projects + subjects
 - **Chats & messenger** — create chats, add/remove members, send/edit/delete
-  messages, search, counters, notifications
+  messages, reactions, search, counters, notifications, recent; open lines
+  (configs, sessions, operators); chat bots v2 (registration, commands, files)
 - **Files (Disk)** — upload/download/move/copy files, list folders, versions,
-  public links
-- **Calendar** — events, sections, availability, nearest events
-- **HR & org** — users, departments, working time, invite/dismiss/transfer
-- **Business** — universal lists, mail, reports, marketing, workflows
+  sharing, public links, rights, attached objects
+- **Calendar** — events, sections, meetings, resources, availability, settings
+- **HR & org** — users, departments, working time + time control + network
+  ranges + schedules, invite/dismiss/transfer
+- **Business** — universal lists + sections, mail (incl. message→task/event/
+  chat/CRM), reports, marketing, workflows + robot/activity CRUD, telephony
+  (calls, SIP, voximplant callbacks/info-calls/TTS/lines/stats), events
+- **Trade catalog** — products, sections, prices, price types, measures, VAT,
+  ratios, rounding rules, extra charges, inventory documents, product
+  properties, variations (offers), SKU heads, services, stock records
   (bizproc), telephony, event subscriptions
 - **Batch & generic** — combine up to 50 calls; call any REST method by name
 
@@ -381,7 +403,7 @@ The AI agent will call `bx24_crm_deals` `action: "list"` (filtered by
 npm install          # Install dependencies
 npm run build        # Compile TypeScript + chmod +x
 npm run dev          # Watch mode
-npm test             # Run 75 tests (vitest)
+npm test             # Run 88 tests (vitest)
 npm run test:coverage
 npm start            # Run server
 docker build -t mcp/bitrix24 .   # Docker image
@@ -406,7 +428,7 @@ mcp_b24/
 │   └── tools/
 │       ├── framework.ts  # Data-driven action-tool framework
 │       ├── params.ts     # Reusable param schemas
-│       ├── index.ts      # Tool registration (30 tools)
+│       ├── index.ts      # Tool registration (41 tools)
 │       ├── batch.ts      # bx24_batch
 │       ├── call.ts       # bx24_call (escape-hatch)
 │       ├── crm/          # 10 CRM tools

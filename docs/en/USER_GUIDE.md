@@ -1,8 +1,8 @@
 # User Guide
 
-**mcp-b24** is an AI assistant for your Bitrix24 portal. Once connected to an AI client (Claude, Cursor, VS Code, Codex CLI), you manage CRM, tasks, chats, files, calendar, mail, telephony and business processes **in plain language**. The server performs real actions on the portal.
+**mcp-b24** is an AI assistant for your Bitrix24 portal. Once connected to an AI client (Claude, Cursor, VS Code, Codex CLI), you manage CRM (leads, deals, contacts, companies, quotes, smart processes), tasks, chats, open lines, chat bots, files, calendar, mail, telephony, business processes, document generation, trade catalog and inventory **in plain language**. The server performs real actions on the portal.
 
-Unlike the official Bitrix24 MCP (documentation only), this server **actually executes** requests: creates leads, assigns tasks, sends messages, starts workflows.
+Unlike the official Bitrix24 MCP (documentation only), this server **actually executes** requests: creates leads, assigns tasks, sends messages, starts workflows, generates documents.
 
 ## What you need to start
 

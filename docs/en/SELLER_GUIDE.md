@@ -60,7 +60,7 @@ Start the "{{workflow}}" workflow for deal #{{id}}.
 
 ## Rollout checklist
 
-1. A webhook or OAuth app exists on the portal with the needed scopes (crm, tasks, im, disk, calendar, user, catalog, lists, mail, telephony, bizproc, humanresources, timeman, event).
+1. A webhook or OAuth app exists on the portal with the needed scopes (crm, tasks, im, imopenlines, imbot, disk, calendar, user, catalog, lists, mail, telephony, bizproc, humanresources, timeman, event).
 2. `BX24_CONFIRM_DESTRUCTIVE=true` on production portals.
 3. `BX24_AUDIT_LOG` points to a location only admins can read.
 4. MCP-client configs handed to users (see README).

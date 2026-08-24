@@ -39,6 +39,46 @@ export const P = {
   calendarType: { type: "string", enum: ["user", "calendar"], description: "Calendar type: 'user' (personal) or 'calendar' (shared)" },
   calendarId: { type: "string", description: "Calendar ID (owner calendar)" },
 
+  // CRM secondary entities
+  quoteId: { type: "string", description: "CRM quote ID" },
+  currencyId: { type: "string", description: "CRM currency ID (e.g. RUB, USD)" },
+  webformId: { type: "string", description: "CRM webform ID" },
+  resultId: { type: "string", description: "Webform result ID" },
+  callListId: { type: "string", description: "CRM call list ID" },
+  templateId: { type: "string", description: "Document/workflow template ID" },
+  documentId: { type: "string", description: "Document generator document ID" },
+  numeratorId: { type: "string", description: "Document numerator ID" },
+  traceId: { type: "string", description: "Tracking trace ID" },
+  sourceId: { type: "string", description: "Tracking source ID" },
+  triggerId: { type: "string", description: "CRM automation trigger code/ID" },
+
+  // Catalog extended
+  catalogId: { type: "string", description: "Trade catalog ID" },
+  priceTypeId: { type: "string", description: "Catalog price type ID" },
+  measureId: { type: "string", description: "Catalog measure (unit) ID" },
+  vatId: { type: "string", description: "Catalog VAT rate ID" },
+  warehouseId: { type: "string", description: "Catalog warehouse (store) ID" },
+  storeProductId: { type: "string", description: "Catalog stock record ID" },
+  ratioId: { type: "string", description: "Catalog measurement ratio ID" },
+  roundingRuleId: { type: "string", description: "Catalog rounding rule ID" },
+  extraId: { type: "string", description: "Catalog extra charge ID" },
+  inventoryDocumentId: { type: "string", description: "Catalog inventory document ID" },
+  contractorId: { type: "string", description: "Catalog contractor ID" },
+  propertyId: { type: "string", description: "Catalog product property ID" },
+  propertyEnumId: { type: "string", description: "Catalog property enum value ID" },
+  featureId: { type: "string", description: "Property feature ID" },
+
+  // IM open lines / bots
+  lineId: { type: "string", description: "Open line config ID" },
+  sessionId: { type: "string", description: "Open line session ID" },
+  botId: { type: "string", description: "Chat bot code/ID" },
+  commandId: { type: "string", description: "Bot command ID" },
+  reactionId: { type: "string", description: "Message reaction ID" },
+
+  // Calendar
+  resourceId: { type: "string", description: "Calendar resource ID" },
+  bookingId: { type: "string", description: "Calendar resource booking ID" },
+
   // Generic
   id: { type: "string", description: "Entity ID" },
   fields: { type: "object", description: "Entity fields object (per Bitrix24 docs for the method)" },

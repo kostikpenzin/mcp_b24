@@ -60,7 +60,7 @@
 
 ## Чек-лист внедрения
 
-1. На портале создан вебхук или OAuth-приложение с нужными scope (crm, tasks, im, disk, calendar, user, catalog, lists, mail, telephony, bizproc, humanresources, timeman, event).
+1. На портале создан вебхук или OAuth-приложение с нужными scope (crm, tasks, im, imopenlines, imbot, disk, calendar, user, catalog, lists, mail, telephony, bizproc, humanresources, timeman, event).
 2. `BX24_CONFIRM_DESTRUCTIVE=true` на рабочих порталах.
 3. `BX24_AUDIT_LOG` направлен в место, доступное только админам.
 4. Пользователям раздали конфиги MCP-клиентов (см. README).

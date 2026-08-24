@@ -44,10 +44,10 @@ describe("MCP protocol integration", () => {
   beforeEach(() => { fetchMock = vi.fn(); global.fetch = fetchMock as unknown as typeof fetch; });
   afterEach(() => vi.restoreAllMocks());
 
-  it("lists 30 tools with unique bx24_ names", async () => {
+  it("lists 41 tools with unique bx24_ names", async () => {
     const { client, close } = await connectClient();
     const res = await client.listTools();
-    expect(res.tools).toHaveLength(30);
+    expect(res.tools).toHaveLength(41);
     const names = res.tools.map((t) => t.name);
     expect(new Set(names).size).toBe(names.length);
     for (const t of res.tools) {

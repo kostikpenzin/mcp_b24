@@ -32,11 +32,11 @@ describe("getAllTools — registry & routing", () => {
   const client = new Bitrix24ApiClient(cfg);
   const tools = getAllTools(client);
 
-  it("registers exactly 30 tools (28 + batch + call) with unique names", () => {
-    expect(tools).toHaveLength(30);
+  it("registers exactly 41 tools (39 + batch + call) with unique names", () => {
+    expect(tools).toHaveLength(41);
     const names = tools.map((t) => t.name);
     expect(new Set(names).size).toBe(names.length);
-    expect(names.filter((n) => n.startsWith("bx24_"))).toHaveLength(30);
+    expect(names.filter((n) => n.startsWith("bx24_"))).toHaveLength(41);
   });
 
   it("all tools expose object inputSchema; non-generic tools require action", () => {
@@ -84,6 +84,17 @@ describe("getAllTools — registry & routing", () => {
     { name: "bx24_events", action: "bind", args: { event: "onCrmLeadAdd", handler: "https://h" }, expectMethod: "event.bind" },
     { name: "bx24_batch", action: "run", args: { cmd: { a: "crm.lead.list" } }, expectMethod: "batch" },
     { name: "bx24_call", action: "invoke", args: { method: "profile" }, expectMethod: "profile" },
+    { name: "bx24_crm_quotes", action: "add", args: { fields: { TITLE: "Q" } }, expectMethod: "crm.quote.add", expectBody: { fields: { TITLE: "Q" } } },
+    { name: "bx24_crm_documents", action: "document_add", args: { fields: { templateId: "1" } }, expectMethod: "crm.documentgenerator.document.add" },
+    { name: "bx24_crm_currency", action: "list", args: {}, expectMethod: "crm.currency.list" },
+    { name: "bx24_crm_webform", action: "list", args: {}, expectMethod: "crm.webform.list" },
+    { name: "bx24_crm_tracking", action: "source_list", args: {}, expectMethod: "crm.tracking.source.list" },
+    { name: "bx24_crm_automation", action: "trigger_list", args: {}, expectMethod: "crm.automation.trigger.list" },
+    { name: "bx24_crm_calllists", action: "list", args: {}, expectMethod: "crm.calllist.list" },
+    { name: "bx24_crm_addresses", action: "list", args: {}, expectMethod: "crm.address.list" },
+    { name: "bx24_crm_stagehistory", action: "list", args: {}, expectMethod: "crm.stagehistory.list" },
+    { name: "bx24_openlines", action: "config_list", args: {}, expectMethod: "imopenlines.config.list.get" },
+    { name: "bx24_bots", action: "bot_list", args: {}, expectMethod: "imbot.v2.Bot.list" },
   ];
 
   for (const c of cases) {

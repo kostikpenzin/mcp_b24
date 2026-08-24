@@ -69,11 +69,12 @@ interface ActionMapping {
 
 ## Добавление нового инструмента
 
-1. Создайте `src/tools/<group>/<entity>.ts` и опишите инструмент через `createActionTool` (шаблон — см. [crм/leads.ts](../src/tools/crm/leads.ts)).
-2. Зарегистрируйте в `src/tools/index.ts` (`getAllTools`).
-3. Если `restMethod` зависит от аргумента (напр. `crm.<entity>.userfield.*` или `crm.item.*` с `entityTypeId`) — напишите кастомный инструмент с собственным `handler` (примеры: `crm/invoices.ts`, `crm/smartProcesses.ts`).
-4. Добавьте тест-маппинг в `src/tools/index.test.ts`.
-5. Обновите `buildInstructions()` в `src/server.ts` и [TOOLS_REFERENCE.md](TOOLS_REFERENCE.md).
+1. Создайте `src/tools/<group>/<entity>.ts` и опишите инструмент через `createActionTool` (шаблон — см. [crm/leads.ts](../../src/tools/crm/leads.ts)).
+2. Зарегистрируйте в `src/tools/index.ts` (`getAllTools`) и обновите комментарий-счётчик группы (CRM/collab/org/biz).
+3. Если `restMethod` зависит от аргумента (напр. `crm.item.*` с `entityTypeId`) — напишите кастомный инструмент с собственным `handler` (примеры: `crm/invoices.ts`, `crm/smartProcesses.ts`); для таких инструментов добавьте их action→restMethod-ожидания в `CUSTOM_EXPECTED` в `endpoint-coverage.test.ts`.
+4. Поднимите ассерты счётчика инструментов в `src/tools/index.test.ts` и `src/mcp-protocol.test.ts` (`toHaveLength`).
+5. `endpoint-coverage.test.ts` автоматически находит новые actions framework-инструментов, парся исходники — по-action routing-кейсы не нужны; добавьте один репрезентативный кейс в `index.test.ts` для быстрого сигнала.
+6. Обновите `buildInstructions()` в `src/server.ts` и [TOOLS_REFERENCE.md](./TOOLS_REFERENCE.md) (RU + EN).
 
 ## Авторизация
 
@@ -112,11 +113,11 @@ flowchart TD
 ## Тестирование (Vitest)
 
 ```bash
-npm test                 # 73 теста, 6 файлов
+npm test                 # 88 тестов, 7 файлов
 npm run test:coverage
 ```
 
-Покрытие: `config.test`, `api-client.test` (webhook/OAuth URL, auto-refresh, client_endpoint, backoff 503, ошибки в теле 200, пагинация), `framework.test` (маршрутизация, bodyWrapper, rawBody, destructive confirm), `validate.test`, `tools/index.test` (30 инструментов, ~30 маппингов), `mcp-protocol.test` (InMemoryTransport + Client: listTools(30), вызовы).
+Покрытие: `config.test`, `api-client.test` (webhook/OAuth URL, auto-refresh, client_endpoint, backoff 503, ошибки в теле 200, пагинация), `framework.test` (маршрутизация, bodyWrapper, rawBody, destructive confirm), `validate.test`, `tools/index.test` (41 инструмент + паритет action↔mapping — каждый action разрешается), `tools/endpoint-coverage.test` (парсит маппинги из исходников и инструментирует fetch для проверки всех 872 маршрутов action→REST-метод), `mcp-protocol.test` (InMemoryTransport + Client: listTools(41), вызовы).
 
 ## Сборка и публикация
 

@@ -12,42 +12,54 @@ import { VERSION, API_VERSION } from "./constants.js";
 export function buildInstructions(): string {
   return (
     "Bitrix24 MCP server (mcp-b24). Executes real REST calls against a Bitrix24 portal across CRM, " +
-    "tasks, chats, files, calendar, HR, smart processes, mail, telephony, workflows, events. " +
+    "tasks, chats, files, calendar, HR, smart processes, mail, telephony, workflows, events, " +
+    "open lines, chat bots, document generator, quotes, currency, webforms, tracking, inventory. " +
     `Wraps Bitrix24 REST (${API_VERSION}). Auth handled automatically via webhook (BX24_WEBHOOK_URL) or OAuth 2.0 (BX24_DOMAIN + client credentials, auto-refresh). The AI agent never sees credentials.\n\n` +
     "Most tools are action-based: each groups a REST domain and selects the operation with an `action` parameter.\n\n" +
     "NATURAL LANGUAGE MAPPING (RU/EN → tool + action):\n\n" +
     "CRM:\n" +
-    "  - bx24_crm_leads: add/get/list/update/delete/fields/contact_*/userfield_*/convert (лиды/leads)\n" +
-    "  - bx24_crm_deals: add/get/list/update/delete/fields/category_*/getProductRows/setProductRows/getContactBindings (сделки/deals + воронки)\n" +
-    "  - bx24_crm_contacts: add/get/list/update/delete/fields/company_*/userfield_* (контакты)\n" +
-    "  - bx24_crm_companies: add/get/list/update/delete/fields/contact_*/userfield_* (компании)\n" +
+    "  - bx24_crm_leads: add/get/list/update/delete/fields/contact_*/userfield_*/convert/productrows_*/details_* (лиды/leads)\n" +
+    "  - bx24_crm_deals: add/get/list/update/delete/fields/category_*/productrows/contact_*/recurring_*/details_*/userfield_* (сделки/deals + воронки)\n" +
+    "  - bx24_crm_contacts: add/get/list/update/delete/fields/company_*/userfield_*/details_* (контакты)\n" +
+    "  - bx24_crm_companies: add/get/list/update/delete/fields/contact_*/userfield_*/details_* (компании)\n" +
     "  - bx24_crm_invoices: add/get/list/update/delete/fields/stage_list/*ProductRows (счета/SMART_INVOICE, entityTypeId=31 auto)\n" +
-    "  - bx24_crm_products: product_*/section_*/price_*/store_*/productrow_* (товары/каталог)\n" +
-    "  - bx24_crm_activities: add/get/list/update/delete/fields/complete/timeline_*/binding_*/count (дела/звонки/встречи)\n" +
-    "  - bx24_crm_requisites: add/get/list/update/delete/preset_*/link_add (реквизиты)\n" +
-    "  - bx24_crm_duplicates: findbycomm/findbyfields/merge/mergeBatch (дубли)\n" +
-    "  - bx24_smart_processes: type_*/item_* (умные процессы; item_* require typeId)\n\n" +
+    "  - bx24_crm_products: product/section/price/store/priceType/measure/vat/ratio/roundingRule/extra/storeProduct/document_*/property_*/offer/sku/service_* (торговый каталог/склад)\n" +
+    "  - bx24_crm_activities: add/get/list/update/delete/fields/complete/todo_*/configurable_*/type_*/badge_*/timeline_*/binding_*/count (дела/звонки/встречи + таймлайн)\n" +
+    "  - bx24_crm_requisites: add/get/list/update/delete/preset_*/bankdetail_*/link_*/userfield_* (реквизиты + банк.реквизиты)\n" +
+    "  - bx24_crm_duplicates: findbycomm/findbyfields/merge/mergeBatch/volatileType_*/status_* (дубли + справочники)\n" +
+    "  - bx24_smart_processes: type_*/item_* (умные процессы; item_* require typeId)\n" +
+    "  - bx24_crm_quotes: add/get/list/update/delete/fields/productrows_*/contact_*/userfield_* (коммерческие предложения/quotes)\n" +
+    "  - bx24_crm_documents: template_*/document_*/binding_*/numerator_*/region_list/provider_list (генератор документов/document generator)\n" +
+    "  - bx24_crm_currency: add/get/list/update/delete/fields/base_*/localizations_* (валюты/currencies)\n" +
+    "  - bx24_crm_webform: add/get/list/update/delete/fields/result_*/option_* (веб-формы/webforms)\n" +
+    "  - bx24_crm_tracking: trace_*/source_*/channel_list (отслеживание/tracking sources)\n" +
+    "  - bx24_crm_automation: trigger/trigger_add/list/execute/delete (триггеры автоматизации)\n" +
+    "  - bx24_crm_calllists: add/get/list/delete/start/status (списки обзвона/call lists)\n" +
+    "  - bx24_crm_addresses: add/get/list/update/delete/fields/byclient/deleteByFilter (адреса/addresses)\n" +
+    "  - bx24_crm_stagehistory: list/get/fields (история стадий/stage history)\n\n" +
     "TASKS & COLLAB:\n" +
-    "  - bx24_tasks: full lifecycle + checklists + comments + elapsed + flows + stages (задачи)\n" +
-    "  - bx24_projects: create/get/list/update/delete/user_*/set_owner/feature_* (проекты/группы)\n" +
-    "  - bx24_disk: storage_*/folder_*/file_* + versions + external links (Диск)\n" +
-    "  - bx24_im: message_*/notify_*/user_*/search_*/counters_get/recent_*/dialog_*/bot_list (мессенджер)\n" +
-    "  - bx24_im_chat: add/get/update*/setOwner/user_*/leave/mute/sendMessage/editMessage/deleteMessage/searchMessages/readAll/uploadFile (чаты)\n" +
+    "  - bx24_tasks: full lifecycle + checklists + comments + elapsed + flows + stages + planner + dependence + userfield_* (задачи)\n" +
+    "  - bx24_projects: create/get/list/update/delete/user_*/set_owner/feature_*/subject_* (проекты/группы)\n" +
+    "  - bx24_disk: storage_*/folder_*/file_* + versions + external links + shareToUser + rights + attachedObject (Диск)\n" +
+    "  - bx24_im: message_*/notify_*/user_*/search_*/counters_get/recent_*/dialog_*/department_*/v2_*/bot_list (мессенджер)\n" +
+    "  - bx24_im_chat: add/get/update*/setOwner/setManager/user_*/leave/mute/sendMessage/editMessage/deleteMessage/searchMessages/readAll/uploadFile (чаты)\n" +
     "  - bx24_conf: create/get/list/delete/join/leave (конференции)\n" +
-    "  - bx24_calendar: event_*/section_*/meeting_status_set/resource_list/accessibility_get/settings_get (календарь)\n\n" +
+    "  - bx24_calendar: event_*/section_*/meeting_status_*/resource_*/accessibility_get/settings_get/set (календарь)\n" +
+    "  - bx24_openlines: config_*/session_*/dialog_get/network_join/operator_answer/message_quick_save/crm_* (открытые линии/open lines)\n" +
+    "  - bx24_bots: bot_*/chat_*/message_*/reaction_*/command_*/file_*/event_get (чат-боты v2/chat bots)\n\n" +
     "ORG:\n" +
     "  - bx24_users: current/get/listByDepartment/search/fields/userfield_*/add/update/delete (пользователи)\n" +
     "  - bx24_departments: get/list/add/update/delete/fields/im_get (отделы/оргструктура)\n" +
-    "  - bx24_time: status_open/close/pause/get/update + time_settings (учёт времени)\n" +
+    "  - bx24_time: status_* + time_settings + timecontrol_*/networkrange_*/schedule_get/record_* (учёт времени + time control)\n" +
     "  - bx24_hr: employee_*/invite/dismiss/transfer/info (HR/кадры)\n\n" +
     "BIZ:\n" +
-    "  - bx24_lists: list_*/field_*/element_*/section_list (универсальные списки)\n" +
-    "  - bx24_mail: mailbox_*/message_*/recipient_*/mailservice_*/filter_*/message_mark (почта)\n" +
+    "  - bx24_lists: list_*/field_*/element_*/section_*/field_type_get (универсальные списки)\n" +
+    "  - bx24_mail: mailbox_*/message_*/recipient_*/mailservice_*/filter_*/message_mark + message_movetofolder/createtask/createcalendarevent/createchat/createcrmactivity (почта)\n" +
     "  - bx24_reports: deal_pipeline/lead_source/user_activity/task_completion/deal_conversion/funnel_stages (аналитика)\n" +
     "  - bx24_marketing: segment_*/broadcast_send/lead_filter/tradeplatform_list (маркетинг)\n" +
-    "  - bx24_workflows: template_*/start/kill/task_*/robot_*/activity_*/instance_* (бизнес-процессы)\n" +
-    "  - bx24_telephony: externalLine_*/externalCall_*/sip_*/call_followup_get/voximplant_* (телефония)\n" +
-    "  - bx24_events: bind/unbind/get/offline_*/get_supported (события/подписки)\n\n" +
+    "  - bx24_workflows: template_*/start/kill/workflow_terminate/task_*/robot_*/activity_*/event_send/instance_* (бизнес-процессы + CRUD роботов/активностей)\n" +
+    "  - bx24_telephony: externalLine_*/externalCall_*/sip_*/call_followup_get/voximplant_* (телефония + callback/infocall/TTS/lines/stats)\n" +
+    "  - bx24_events: bind/unbind/get/offline_*/get_supported/events_list (события/подписки)\n\n" +
     "GENERIC:\n" +
     "  - bx24_batch: combine up to 50 REST calls; reference earlier results via $result[key]\n" +
     "  - bx24_call: invoke ANY Bitrix24 REST method by name with arbitrary params (escape-hatch)\n\n" +

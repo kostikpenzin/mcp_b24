@@ -59,16 +59,17 @@ flowchart LR
 ```mermaid
 flowchart LR
     A["Create src/tools/&lt;group&gt;/&lt;entity&gt;.ts<br/>createActionTool(...)"] --> B["Register in tools/index.ts"]
-    B --> C["Add mapping test in tools/index.test.ts"]
+    B --> C["Bump tool count in index.test.ts + mcp-protocol.test.ts"]
     C --> D["Update buildInstructions() in server.ts"]
     D --> E["Update TOOLS_REFERENCE.md"]
 ```
 
 1. Create `src/tools/<group>/<entity>.ts` and describe the tool via `createActionTool` (template: see `crm/leads.ts`).
-2. Register it in `src/tools/index.ts` (`getAllTools`).
-3. If `restMethod` depends on an argument (e.g. `crm.item.*` with `entityTypeId`) — write a custom tool with its own `handler` (examples: `crm/invoices.ts`, `crm/smartProcesses.ts`).
-4. Add a mapping case in `src/tools/index.test.ts`.
-5. Update `buildInstructions()` in `src/server.ts` and [TOOLS_REFERENCE.md](./TOOLS_REFERENCE.md).
+2. Register it in `src/tools/index.ts` (`getAllTools`) and update the CRM/collab/org/biz group-count comment.
+3. If `restMethod` depends on an argument (e.g. `crm.item.*` with `entityTypeId`) — write a custom tool with its own `handler` (examples: `crm/invoices.ts`, `crm/smartProcesses.ts`); for such tools add their action→restMethod expectations to `CUSTOM_EXPECTED` in `endpoint-coverage.test.ts`.
+4. Bump the tool-count assertions in `src/tools/index.test.ts` and `src/mcp-protocol.test.ts` (`toHaveLength`).
+5. `endpoint-coverage.test.ts` auto-discovers new framework-tool actions by parsing source — no per-action routing case needed; add one representative case to `index.test.ts` for a fast signal.
+6. Update `buildInstructions()` in `src/server.ts` and [TOOLS_REFERENCE.md](./TOOLS_REFERENCE.md) (RU + EN).
 
 ## Auth
 
@@ -117,11 +118,11 @@ flowchart TD
 ## Testing (Vitest)
 
 ```bash
-npm test                 # 75 tests, 6 files
+npm test                 # 88 tests, 7 files
 npm run test:coverage
 ```
 
-Coverage: `config.test`, `api-client.test` (webhook/OAuth URL, auto-refresh, client_endpoint, 503 backoff, errors-in-200 body, pagination), `framework.test` (routing, bodyWrapper, rawBody, destructive confirm), `validate.test`, `tools/index.test` (30 tools, ~30 mappings + action↔mappings parity), `mcp-protocol.test` (InMemoryTransport + Client: listTools(30), calls).
+Coverage: `config.test`, `api-client.test` (webhook/OAuth URL, auto-refresh, client_endpoint, 503 backoff, errors-in-200 body, pagination), `framework.test` (routing, bodyWrapper, rawBody, destructive confirm), `validate.test`, `tools/index.test` (41 tools + action↔mappings parity — every action resolves), `tools/endpoint-coverage.test` (parses source mappings + instruments fetch to verify every one of the 872 action→REST-method routings), `mcp-protocol.test` (InMemoryTransport + Client: listTools(41), calls).
 
 ## Build & publish
 

@@ -1,4 +1,41 @@
 # Changelog
+n## 0.3.0 (2026-08-24)
+
+Major API coverage expansion: **41 tools** (was 30), **~870 actions** (was ~290) wrapping ~780 unique Bitrix24 REST methods.
+
+### New tools (11)
+
+- **CRM (9):** `bx24_crm_quotes` (crm.quote.*), `bx24_crm_documents` (document generator), `bx24_crm_currency` (currencies), `bx24_crm_webform` (webforms + results), `bx24_crm_tracking` (tracking sources/traces/channels), `bx24_crm_automation` (automation triggers), `bx24_crm_calllists` (call lists), `bx24_crm_addresses` (client addresses), `bx24_crm_stagehistory` (stage movement history).
+- **collab (2):** `bx24_openlines` (IM open lines), `bx24_bots` (chat bots v2 — registration, chats, messages, reactions, commands, files, events).
+
+### Extended tools (15)
+
+- `bx24_crm_products` — full trade catalog: price types, measures, VAT, ratios, rounding rules, extra charges, inventory documents, product properties/enum/feature/section, variations (offers), SKU heads, services, stock records, catalog metadata, enums.
+- `bx24_crm_activities` — todo/configurable/type/badge activities, full timeline (comment/note/logmessage/bindings/pin).
+- `bx24_crm_requisites` — bank details, user fields, link register/unregister, preset add/update/delete.
+- `bx24_crm_leads`/`deals`/`contacts`/`companies` — contact/company items set/delete, details.configuration.*, deal recurring.*, lead productrows.*.
+- `bx24_crm_duplicates` — volatile types, full crm.status.* dictionary CRUD.
+- `bx24_tasks` — flows (create/get/update/delete/activate/pin), kanban stages, planner, dependencies, result update/delete, elapsed update/get/list/delete, checklist move/renew, task user fields.
+- `bx24_disk` — folder get/shareToUser/markDeleted/restore/fields, storage getChildren/uploadFile/getTypes/getForApp/fields, file restoreFromVersion/fields, attachedObject_get, rights_getTasks.
+- `bx24_calendar` — event getbyid, resource add/update/delete/booking_list, meeting_status_get, settings_get/set.
+- `bx24_im` — message like/share/command, dialog read_all/messages_search, notify get/read/answer/confirm/history_search, search chat/department/last, department managers/employees/colleagues, user status, v2 files/events.
+- `bx24_im_chat` — setManager, dialog messages search.
+- `bx24_projects` — user invite/update, subject add/update/delete.
+- `bx24_lists` — section add/update/delete, field type get, element get file url, get iblock type id.
+- `bx24_mail` — message movetofolder/createtask/createcalendarevent/createchat/createfeedpost/createcrmactivity/removecrmactivity, mailbox senders/fields, message fields, recipient contacts/employees/fields, mailservice CRUD + fields.
+- `bx24_telephony` — externalCall show/hide/attachRecord/searchCrmEntities, call attachTranscription, voximplant callbacks/info-calls/TTS/urls/lines/stats/users, SIP update/get/status/connector_status.
+- `bx24_workflows` — workflow terminate, task delegate, template add/update/delete, robot/activity add/update/delete/log, event send.
+- `bx24_time` — time control (reports/settings), network ranges, schedules, records.
+- `bx24_users` — userfield_list.
+- `bx24_events` — offline_error, events_list (available event names).
+
+### Infrastructure
+
+- `src/tools/params.ts` — shared param helpers for new entity types (quotes, currency, webform, catalog extended, open lines, bots, calendar resources, etc.).
+- Tests: 86 (was 75); routing cases added for all 11 new tools; action↔mapping parity test validates every action resolves.
+- Documentation: README, TOOLS_REFERENCE (RU + EN), package.json description updated to 41 tools / ~870 actions.
+- Tests: 88 (was 75); added `endpoint-coverage.test.ts` — parses source mappings and instruments fetch to verify every one of the 872 action→REST-method routings; routing cases added for all 11 new tools; action↔mapping parity test validates every action resolves.
+
 n## 0.2.3 (2026-08-24)
 
 - Documentation is now bilingual: `docs/en/*` (English, default) + `docs/ru/*` (Russian), with Mermaid diagrams (architecture, data flow, auth, tool groups, destructive-confirm, audit flow).

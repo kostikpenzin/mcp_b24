@@ -4,12 +4,13 @@
 openapi: 3.1.0
 info:
   title: mcp-b24
-  version: 0.2.0
+  version: 0.3.0
   description: |
-    Full Bitrix24 MCP server — 28 domain tools (CRM, Tasks, Disk, IM, Calendar, HR,
-    Smart processes, Mail, Telephony, Workflows, Events) plus generic bx24_batch and
-    bx24_call, exposing ~290 actions over the Bitrix24 REST API. Each domain tool is
-    "action-based": the `action` enum selects the REST operation.
+    Full Bitrix24 MCP server — 39 domain tools (CRM, Tasks, Disk, IM, Calendar, HR,
+    Smart processes, Mail, Telephony, Workflows, Events, Open Lines, Chat Bots,
+    Document Generator, Quotes, Currency, Webforms, Tracking, Inventory) plus generic
+    bx24_batch and bx24_call, exposing ~870 actions over the Bitrix24 REST API.
+    Each domain tool is "action-based": the `action` enum selects the REST operation.
   license:
     name: MIT
 servers:
@@ -25,7 +26,7 @@ paths:
   /tools/list:
     get:
       tags: [generic]
-      summary: List all 30 tools (28 + bx24_batch + bx24_call)
+      summary: List all 41 tools (39 + bx24_batch + bx24_call)
       responses: { "200": { description: tool list } }
 components:
   schemas:

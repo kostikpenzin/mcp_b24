@@ -1,6 +1,6 @@
 # mcp-b24 — Документация
 
-Полный MCP-сервер над REST API Битрикс24: **30 инструментов**, ~290 действий, webhook + OAuth 2.0, RU/EN, MIT.
+Полный MCP-сервер над REST API Битрикс24: **41 инструмент**, ~870 действий, webhook + OAuth 2.0, RU/EN, MIT.
 
 **Языки:** [English](../README.md) · Русский
 
@@ -24,7 +24,7 @@ flowchart TD
 | [USER_GUIDE.md](./USER_GUIDE.md) | Обычные сотрудники | Установка, общение с AI-агентом, повседневные кейсы |
 | [SELLER_GUIDE.md](./SELLER_GUIDE.md) | Менеджеры CRM / РОП / HR / админы | Роле-специфичные workflows и рецепты |
 | [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md) | Разработчики | Архитектура, data-driven фреймворк, добавление инструментов, тесты, публикация |
-| [TOOLS_REFERENCE.md](./TOOLS_REFERENCE.md) | Все | Полный реестр 30 инструментов и действий |
+| [TOOLS_REFERENCE.md](./TOOLS_REFERENCE.md) | Все | Полный реестр 41 инструмента и действий |
 | [AUDIT_LOG.md](./AUDIT_LOG.md) | Админы / безопасники | Формат и политика JSONL-аудита |
 
 Английские версии: [`en/`](../en/).

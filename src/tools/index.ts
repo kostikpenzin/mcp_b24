@@ -12,6 +12,15 @@ import { createActivitiesTool } from "./crm/activities.js";
 import { createRequisitesTool } from "./crm/requisites.js";
 import { createDuplicatesTool } from "./crm/duplicates.js";
 import { createSmartProcessesTool } from "./crm/smartProcesses.js";
+import { createQuotesTool } from "./crm/quotes.js";
+import { createDocumentGeneratorTool } from "./crm/documentGenerator.js";
+import { createCurrencyTool } from "./crm/currency.js";
+import { createWebformTool } from "./crm/webform.js";
+import { createTrackingTool } from "./crm/tracking.js";
+import { createCrmAutomationTool } from "./crm/crmAutomation.js";
+import { createCallListsTool } from "./crm/callLists.js";
+import { createAddressesTool } from "./crm/addresses.js";
+import { createStageHistoryTool } from "./crm/stageHistory.js";
 // collab
 import { createTasksTool } from "./collab/tasks.js";
 import { createProjectsTool } from "./collab/projects.js";
@@ -20,6 +29,8 @@ import { createImTool } from "./collab/im.js";
 import { createImChatTool } from "./collab/imChat.js";
 import { createConfTool } from "./collab/conf.js";
 import { createCalendarTool } from "./collab/calendar.js";
+import { createOpenLinesTool } from "./collab/openlines.js";
+import { createBotsTool } from "./collab/bots.js";
 // org
 import { createUsersTool } from "./org/users.js";
 import { createDepartmentsTool } from "./org/departments.js";
@@ -39,7 +50,7 @@ import { createCallTool } from "./call.js";
 
 export function getAllTools(client: Bitrix24ApiClient): ToolDefinition[] {
   return [
-    // CRM (10)
+    // CRM (19)
     createLeadsTool(client),
     createDealsTool(client),
     createContactsTool(client),
@@ -50,7 +61,16 @@ export function getAllTools(client: Bitrix24ApiClient): ToolDefinition[] {
     createRequisitesTool(client),
     createDuplicatesTool(client),
     createSmartProcessesTool(client),
-    // collab (7)
+    createQuotesTool(client),
+    createDocumentGeneratorTool(client),
+    createCurrencyTool(client),
+    createWebformTool(client),
+    createTrackingTool(client),
+    createCrmAutomationTool(client),
+    createCallListsTool(client),
+    createAddressesTool(client),
+    createStageHistoryTool(client),
+    // collab (9)
     createTasksTool(client),
     createProjectsTool(client),
     createDiskTool(client),
@@ -58,6 +78,8 @@ export function getAllTools(client: Bitrix24ApiClient): ToolDefinition[] {
     createImChatTool(client),
     createConfTool(client),
     createCalendarTool(client),
+    createOpenLinesTool(client),
+    createBotsTool(client),
     // org (4)
     createUsersTool(client),
     createDepartmentsTool(client),
