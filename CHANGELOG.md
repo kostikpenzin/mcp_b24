@@ -1,5 +1,5 @@
 # Changelog
-n## 0.3.0 (2026-08-24)
+## 0.3.0 (2026-08-24)
 
 Major API coverage expansion: **41 tools** (was 30), **~870 actions** (was ~290) wrapping ~780 unique Bitrix24 REST methods.
 
@@ -36,11 +36,11 @@ Major API coverage expansion: **41 tools** (was 30), **~870 actions** (was ~290)
 - Documentation: README, TOOLS_REFERENCE (RU + EN), package.json description updated to 41 tools / ~870 actions.
 - Tests: 88 (was 75); added `endpoint-coverage.test.ts` — parses source mappings and instruments fetch to verify every one of the 872 action→REST-method routings; routing cases added for all 11 new tools; action↔mapping parity test validates every action resolves.
 
-n## 0.2.3 (2026-08-24)
+## 0.2.3 (2026-08-24)
 
 - Documentation is now bilingual: `docs/en/*` (English, default) + `docs/ru/*` (Russian), with Mermaid diagrams (architecture, data flow, auth, tool groups, destructive-confirm, audit flow).
 
-n## 0.2.2 (2026-08-24)
+## 0.2.2 (2026-08-24)
 
 - Removed `docs/superpowers/` (internal design spec) from the repository and published package.
 
