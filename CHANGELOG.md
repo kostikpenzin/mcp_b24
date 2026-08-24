@@ -1,4 +1,16 @@
 # Changelog
+## 0.3.1 (2026-08-25)
+
+Bilingual EN/RU polish after 0.3.0: all tool descriptions now carry the unified `RU/EN:` natural-language marker (incl. `bx24_batch`, `bx24_call`), so the AI agent maps Russian and English phrases to the right tool+action consistently across all 41 tools.
+
+### Documentation
+- USER_GUIDE (EN + RU): everyday examples expanded 16 → 28, covering the new tools — quotes, document generator, currency, webform results, UTM tracking, warehouse document conduct, recurring deals, open lines, chat bots, todo activities, email→task, task flows/stages.
+- SELLER_GUIDE (EN + RU): new role sections — sales ops / document workflow, support (open lines), chat-bot builder, warehouse / procurement; marketer + project-manager sections extended (webforms, UTM, flows/stages); ready-to-paste snippets +5 templates.
+- Fixed stray `n##` prefix on version headers in CHANGELOG.
+
+### Code
+- `src/tools/batch.ts`, `src/tools/call.ts`: description marker unified to `RU/EN:` (was `Natural language:`) for consistency with the other 39 domain tools.
+
 ## 0.3.0 (2026-08-24)
 
 Major API coverage expansion: **41 tools** (was 30), **~870 actions** (was ~290) wrapping ~780 unique Bitrix24 REST methods.
