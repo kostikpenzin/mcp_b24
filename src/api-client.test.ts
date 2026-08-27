@@ -19,6 +19,7 @@ function webhookConfig(overrides: Partial<Bitrix24Config> = {}): Bitrix24Config 
     httpHost: "127.0.0.1",
     httpPort: 3000,
     httpPath: "/mcp",
+    corsOrigin: "*",
     ...overrides,
   };
 }
@@ -43,6 +44,7 @@ function oauthConfig(overrides: Partial<Bitrix24Config> = {}): Bitrix24Config {
     httpHost: "127.0.0.1",
     httpPort: 3000,
     httpPath: "/mcp",
+    corsOrigin: "*",
     ...overrides,
   };
 }

@@ -21,6 +21,7 @@ const cfg: Bitrix24Config = {
   httpHost: "127.0.0.1",
   httpPort: 3000,
   httpPath: "/mcp",
+  corsOrigin: "*",
 };
 
 // Custom-handler tools (not built via createActionTool) — mappings are inline, so we
@@ -145,7 +146,7 @@ describe("Endpoint coverage — every action routes to its expected REST method"
   afterEach(() => vi.restoreAllMocks());
 
   const client = new Bitrix24ApiClient(cfg);
-  const tools = getAllTools(client);
+  const tools = getAllTools(client, cfg);
   const byName = new Map(tools.map((t) => [t.name, t]));
   const parsed = parseMappings();
 

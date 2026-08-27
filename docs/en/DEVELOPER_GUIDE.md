@@ -118,11 +118,11 @@ flowchart TD
 ## Testing (Vitest)
 
 ```bash
-npm test                 # 88 tests, 7 files
+npm test                 # 95 tests, 8 files
 npm run test:coverage
 ```
 
-Coverage: `config.test`, `api-client.test` (webhook/OAuth URL, auto-refresh, client_endpoint, 503 backoff, errors-in-200 body, pagination), `framework.test` (routing, bodyWrapper, rawBody, destructive confirm), `validate.test`, `tools/index.test` (41 tools + action↔mappings parity — every action resolves), `tools/endpoint-coverage.test` (parses source mappings + instruments fetch to verify every one of the 872 action→REST-method routings), `mcp-protocol.test` (InMemoryTransport + Client: listTools(41), calls).
+Coverage: `config.test`, `api-client.test` (webhook/OAuth URL, auto-refresh, client_endpoint, 503 backoff, errors-in-200 body, pagination), `framework.test` (routing, bodyWrapper, rawBody, destructive confirm), `validate.test`, `tools/index.test` (43 tools + action↔mappings parity — every action resolves), `tools/summary-health.test` (CRM summary aggregation + health check), `tools/endpoint-coverage.test` (parses source mappings + instruments fetch to verify every one of the 872 action→REST-method routings), `mcp-protocol.test` (InMemoryTransport + Client: listTools(43), calls).
 
 ## Build & publish
 
@@ -141,6 +141,7 @@ SemVer: MAJOR — breaking schema/action renames; MINOR — new tools/actions; P
 
 ## Security
 
-- Never log secrets (`SECRET_RE` masking).
+- Never log secrets (`SECRET_RE` masking; `maskParams` in `framework.ts` is deep and shared by `bx24_call`/`bx24_batch` audit entries).
 - `.env` in `.gitignore`; never commit `.env` with real tokens.
+- HTTP transport hardening lives in `transport.ts`: CORS is opt-in (`BX24_CORS_ORIGIN`), `Host` headers are validated against local names/IP literals (DNS-rebinding defence), bodies capped at 2 MB, optional `BX24_HTTP_TOKEN` bearer auth. Gateway checks run in order: path → host → preflight → token → size.
 - `audit.log` — chmod 600, admins only; recommend shipping to a SIEM.

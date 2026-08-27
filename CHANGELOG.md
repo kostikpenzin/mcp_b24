@@ -1,4 +1,34 @@
 # Changelog
+## 0.4.0 (2026-08-25)
+
+Minor release adding two diagnostic/convenience tools (inspired by competitor analysis of `OneAtDrt/Bitrix24_MCP_Server`), opt-in CORS support for browser-based MCP clients, and HTTP transport hardening (security review fixes).
+
+### Added
+- **`bx24_crm_summary`** (`src/tools/crm/summary.ts`): CRM overview tool that fetches total counts of leads, deals, contacts, and companies plus lead statuses and deal funnels in a single parallel call (`Promise.all` of 6 REST methods). Saves the LLM 5–7 round-trips when a portal overview is needed.
+- **`bx24_health`** (`src/tools/health.ts`): diagnostic tool that pings `app.info` and returns `{ status, authMode, portal, responseTimeMs, timestamp, appInfo/error }`. If `app.info` is unavailable (typical for incoming webhooks), it falls back to `user.current` before reporting an error. A failed ping returns structured JSON (not an error result) so the LLM gets parseable diagnostic data even when the API is down. The portal is reported as a host name only — the webhook secret from `BX24_WEBHOOK_URL` never reaches tool output.
+- **`BX24_HTTP_TOKEN`** (`src/transport.ts`, `src/config.ts`): when set, the HTTP transport requires `Authorization: Bearer <token>` (constant-time comparison).
+- **CORS support** (`src/transport.ts`): opt-in via `BX24_CORS_ORIGIN` — disabled by default. When enabled, `OPTIONS` preflight echoes the configured origin only on an exact match (or `*`), reflects the client's requested headers, and responses add `Vary: Origin`.
+
+### Security
+- **CORS no longer defaults to `*`** (`src/constants.ts`, `src/transport.ts`): with the previous default, any web page could POST to an unauthenticated local MCP endpoint and read the responses. Browser clients must now enable CORS explicitly.
+- **Host-header allowlist** (`src/transport.ts`): requests with a non-local, non-IP `Host` are rejected with 403 — a DNS-rebinding defence, since rebinding makes an attacker domain resolve to `127.0.0.1` and bypasses CORS entirely.
+- **Webhook-secret leak fixed in `bx24_health`** (`src/tools/health.ts`): the `portal` field used to return the full `BX24_WEBHOOK_URL` including the secret, contradicting the "credentials are never exposed" promise; it now returns the host only.
+- **Request body capped at 2 MB** (`src/transport.ts`): oversized bodies are rejected with 413 instead of being buffered unbounded (memory-exhaustion DoS).
+- **Audit entries from `bx24_call`/`bx24_batch` are masked** (`src/tools/call.ts`, `src/tools/batch.ts`): destructive-invocation audit records now go through the shared deep `maskParams` (`src/tools/framework.ts`) instead of writing raw params.
+- **Docker hardening**: runtime stage runs as the non-root `node` user; `docker-compose.yml` binds the port to `127.0.0.1` by default and documents `BX24_HTTP_TOKEN` for network exposure.
+
+### Changed
+- `getAllTools` signature: `getAllTools(client)` → `getAllTools(client, config)` (health tool needs config for portal/auth-mode diagnostics).
+- `NON_ACTION_TOOLS`: added `bx24_crm_summary` and `bx24_health`.
+- Server instructions: GENERIC section now lists `bx24_crm_summary` and `bx24_health`.
+- `DESTRUCTIVE_KEYWORDS` moved to a single exported list in `framework.ts` — `bx24_call` and `bx24_batch` now import it instead of keeping manual copies.
+- Tool count: 41 → 43; test count: 89 → 107 (new `src/transport.test.ts` gateway tests, extended `bx24_health` tests).
+
+### Documentation
+- README (EN + RU): badges, tool count, tools table, env vars table, project structure, Security section and Streamable HTTP notes updated for the new tools, `BX24_CORS_ORIGIN` (now opt-in) and `BX24_HTTP_TOKEN`.
+- TOOLS_REFERENCE (EN + RU): registry header, mermaid diagram, CRM and generic tables updated.
+- `.env.example`: added `BX24_HTTP_TOKEN`; `BX24_CORS_ORIGIN` documented as disabled by default.
+
 ## 0.3.2 (2026-08-25)
 
 Patch release fixing four runtime bugs found by deep code review (the test suite passed but did not exercise these paths), plus documentation improvements.

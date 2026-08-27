@@ -3,17 +3,13 @@ import type { ToolDefinition, ToolResult } from "../types.js";
 import { errorResult, successResult } from "../error.js";
 import { validateArgs } from "./validate.js";
 import { P } from "./params.js";
+import { DESTRUCTIVE_KEYWORDS, maskParams } from "./framework.js";
 import { API_VERSION } from "../constants.js";
 
 // Escape-hatch: call any Bitrix24 REST method by name with arbitrary params.
 // Covers methods not yet wrapped in dedicated tools. Destructive confirmation
-// is applied when the method name looks destructive (delete/remove/...).
-// Keep in sync with DESTRUCTIVE_KEYWORDS in framework.ts.
-const DESTRUCTIVE_KEYWORDS = [
-  "delete", "remove", "detach", "exclude", "stop", "cancel",
-  "reject", "complete", "close", "mute", "leave", "kick", "destroy",
-  "markdeleted", "kill", "unbind", "clear",
-];
+// is applied when the method name looks destructive (delete/remove/...),
+// using the shared DESTRUCTIVE_KEYWORDS from framework.ts.
 
 function isDestructiveMethod(method: string): boolean {
   const lower = method.toLowerCase();
@@ -67,7 +63,7 @@ export function createCallTool(client: Bitrix24ApiClient): ToolDefinition {
           tool: "bx24_call",
           action: method,
           restMethod: method,
-          params: { method, params: args.params },
+          params: maskParams({ method, params: args.params ?? {} }) as Record<string, unknown>,
           result: "denied",
           durationMs: 0,
         });
@@ -93,7 +89,7 @@ export function createCallTool(client: Bitrix24ApiClient): ToolDefinition {
             tool: "bx24_call",
             action: method,
             restMethod: method,
-            params: { method, params },
+            params: maskParams({ method, params }) as Record<string, unknown>,
             result: resultStatus,
             durationMs: Date.now() - started,
           });

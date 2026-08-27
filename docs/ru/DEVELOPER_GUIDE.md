@@ -113,11 +113,11 @@ flowchart TD
 ## Тестирование (Vitest)
 
 ```bash
-npm test                 # 88 тестов, 7 файлов
+npm test                 # 95 тестов, 8 файлов
 npm run test:coverage
 ```
 
-Покрытие: `config.test`, `api-client.test` (webhook/OAuth URL, auto-refresh, client_endpoint, backoff 503, ошибки в теле 200, пагинация), `framework.test` (маршрутизация, bodyWrapper, rawBody, destructive confirm), `validate.test`, `tools/index.test` (41 инструмент + паритет action↔mapping — каждый action разрешается), `tools/endpoint-coverage.test` (парсит маппинги из исходников и инструментирует fetch для проверки всех 872 маршрутов action→REST-метод), `mcp-protocol.test` (InMemoryTransport + Client: listTools(41), вызовы).
+Покрытие: `config.test`, `api-client.test` (webhook/OAuth URL, auto-refresh, client_endpoint, backoff 503, ошибки в теле 200, пагинация), `framework.test` (маршрутизация, bodyWrapper, rawBody, destructive confirm), `validate.test`, `tools/index.test` (43 инструмента + паритет action↔mapping — каждый action разрешается), `tools/summary-health.test` (агрегация сводки CRM + health-check), `tools/endpoint-coverage.test` (парсит маппинги из исходников и инструментирует fetch для проверки всех 872 маршрутов action→REST-метод), `mcp-protocol.test` (InMemoryTransport + Client: listTools(43), вызовы).
 
 ## Сборка и публикация
 
@@ -136,6 +136,7 @@ SemVer: MAJOR — ломающие изменения схем/переимен�
 
 ## Безопасность
 
-- Не логируем секреты (`mask.ts`-паттерн, `SECRET_RE`).
+- Не логируем секреты (`mask.ts`-паттерн, `SECRET_RE`; `maskParams` в `framework.ts` — глубокая и общая для audit-записей `bx24_call`/`bx24_batch`).
 - `.env` в `.gitignore`; не коммитьте `.env` с реальными токенами.
+- Укрепление HTTP-транспорта в `transport.ts`: CORS включается явно (`BX24_CORS_ORIGIN`), `Host` проверяется по локальным именам/IP-литералам (защита от DNS-rebinding), тело ограничено 2 МБ, опциональный `BX24_HTTP_TOKEN` (bearer). Порядок проверок: путь → host → preflight → токен → размер.
 - `audit.log` — chmod 600, доступ только админам; рекомендована отправка в SIEM.

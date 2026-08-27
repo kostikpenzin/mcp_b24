@@ -46,6 +46,8 @@ describe("loadConfig webhook mode", () => {
     expect(cfg.logLevel).toBe("info");
     expect(cfg.transport).toBe("stdio");
     expect(cfg.httpPath).toBe("/mcp");
+    expect(cfg.corsOrigin).toBe("");
+    expect(cfg.httpToken).toBeUndefined();
   });
 
   it("honours explicit BX24_MODE=webhook and flags", () => {
@@ -67,6 +69,22 @@ describe("loadConfig webhook mode", () => {
     expect(cfg.logLevel).toBe("warn");
     expect(cfg.rateLimitRps).toBe(5);
     expect(cfg.auditLogPath).toBe("/tmp/audit.log");
+  });
+
+  it("honours BX24_CORS_ORIGIN", () => {
+    setEnv({
+      BX24_WEBHOOK_URL: "https://portal.bitrix24.ru/rest/1/secret",
+      BX24_CORS_ORIGIN: "https://app.example.com",
+    });
+    expect(loadConfig().corsOrigin).toBe("https://app.example.com");
+  });
+
+  it("honours BX24_HTTP_TOKEN", () => {
+    setEnv({
+      BX24_WEBHOOK_URL: "https://portal.bitrix24.ru/rest/1/secret",
+      BX24_HTTP_TOKEN: "topsecret",
+    });
+    expect(loadConfig().httpToken).toBe("topsecret");
   });
 
   it("rejects webhook URL not matching the REST path pattern", () => {

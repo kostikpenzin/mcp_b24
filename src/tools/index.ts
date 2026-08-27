@@ -1,5 +1,5 @@
 import type { Bitrix24ApiClient } from "../api-client.js";
-import type { ToolDefinition } from "../types.js";
+import type { Bitrix24Config, ToolDefinition } from "../types.js";
 
 // CRM
 import { createLeadsTool } from "./crm/leads.js";
@@ -21,6 +21,7 @@ import { createCrmAutomationTool } from "./crm/crmAutomation.js";
 import { createCallListsTool } from "./crm/callLists.js";
 import { createAddressesTool } from "./crm/addresses.js";
 import { createStageHistoryTool } from "./crm/stageHistory.js";
+import { createCrmSummaryTool } from "./crm/summary.js";
 // collab
 import { createTasksTool } from "./collab/tasks.js";
 import { createProjectsTool } from "./collab/projects.js";
@@ -47,8 +48,9 @@ import { createEventsTool } from "./biz/events.js";
 // generic
 import { createBatchTool } from "./batch.js";
 import { createCallTool } from "./call.js";
+import { createHealthTool } from "./health.js";
 
-export function getAllTools(client: Bitrix24ApiClient): ToolDefinition[] {
+export function getAllTools(client: Bitrix24ApiClient, config: Bitrix24Config): ToolDefinition[] {
   return [
     // CRM (19)
     createLeadsTool(client),
@@ -70,6 +72,7 @@ export function getAllTools(client: Bitrix24ApiClient): ToolDefinition[] {
     createCallListsTool(client),
     createAddressesTool(client),
     createStageHistoryTool(client),
+    createCrmSummaryTool(client),
     // collab (9)
     createTasksTool(client),
     createProjectsTool(client),
@@ -93,11 +96,12 @@ export function getAllTools(client: Bitrix24ApiClient): ToolDefinition[] {
     createWorkflowsTool(client),
     createTelephonyTool(client),
     createEventsTool(client),
-    // generic (2)
+    // generic (3)
     createBatchTool(client),
     createCallTool(client),
+    createHealthTool(client, config),
   ];
 }
 
 /** Tool names that legitimately do not use the `action` parameter. */
-export const NON_ACTION_TOOLS = new Set(["bx24_batch", "bx24_call"]);
+export const NON_ACTION_TOOLS = new Set(["bx24_batch", "bx24_call", "bx24_crm_summary", "bx24_health"]);

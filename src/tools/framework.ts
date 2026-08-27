@@ -4,17 +4,19 @@ import { errorResult, successResult } from "../error.js";
 import { validateArgs } from "./validate.js";
 import { t } from "../i18n/index.js";
 
-const DESTRUCTIVE_KEYWORDS = [
+// Shared destructive-action heuristics. `bx24_call` and `bx24_batch` reuse this
+// list so the escape hatches can never drift away from the per-action checks.
+export const DESTRUCTIVE_KEYWORDS = [
   "delete", "remove", "detach", "exclude", "stop", "cancel",
   "reject", "complete", "close", "mute", "leave", "kick", "destroy",
-  "markDeleted", "kill", "unbind", "clear",
+  "markdeleted", "kill", "unbind", "clear",
 ];
 
 function isDestructiveAction(action: string, mapping: ActionMapping): boolean {
   if (mapping.httpVerb === "DELETE") return true;
   if (mapping.destructive) return true;
   const lower = action.toLowerCase();
-  return DESTRUCTIVE_KEYWORDS.some((kw) => lower.includes(kw.toLowerCase()));
+  return DESTRUCTIVE_KEYWORDS.some((kw) => lower.includes(kw));
 }
 
 export interface ActionMapping {
@@ -99,14 +101,14 @@ export function createActionTool(
           tool: name,
           action,
           restMethod: mapping.restMethod,
-          params: maskParams(args),
+          params: maskParams(args) as Record<string, unknown>,
           result: "denied",
           durationMs: 0,
         });
         const ctx: ConfirmContext = {
           requiresConfirmation: true,
           description: t(client.lang(), "confirmRequired", { action, tool: name }),
-          preview: preview ?? { action, tool: name, params: maskParams(args) },
+          preview: preview ?? { action, tool: name, params: maskParams(args) as Record<string, unknown> },
         };
         return {
           content: [{ type: "text", text: JSON.stringify(ctx, null, 2) }],
@@ -137,7 +139,7 @@ export function createActionTool(
             tool: name,
             action,
             restMethod: mapping.restMethod,
-            params: maskParams(args),
+            params: maskParams(args) as Record<string, unknown>,
             result: resultStatus,
             durationMs: Date.now() - started,
           });
@@ -196,12 +198,19 @@ function buildRequestParams(
   return params;
 }
 
-// Mask obvious secret-like keys before writing params to logs/audit/preview.
+// Mask secret-like keys before writing params to logs/audit/confirmation
+// previews. Applied recursively so values nested in `fields`/`params` objects
+// are covered too (depth-capped as a safety net).
 const SECRET_RE = /(secret|token|password|webhook)/i;
-function maskParams(args: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(args)) {
-    out[k] = SECRET_RE.test(k) ? "***" : v;
+export function maskParams(value: unknown, depth = 0): unknown {
+  if (depth > 6) return value;
+  if (Array.isArray(value)) return value.map((v) => maskParams(v, depth + 1));
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      out[k] = SECRET_RE.test(k) ? "***" : maskParams(v, depth + 1);
+    }
+    return out;
   }
-  return out;
+  return value;
 }

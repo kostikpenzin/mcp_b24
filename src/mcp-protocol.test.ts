@@ -20,6 +20,7 @@ const cfg: Bitrix24Config = {
   httpHost: "127.0.0.1",
   httpPort: 3000,
   httpPath: "/mcp",
+  corsOrigin: "*",
 };
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -44,10 +45,10 @@ describe("MCP protocol integration", () => {
   beforeEach(() => { fetchMock = vi.fn(); global.fetch = fetchMock as unknown as typeof fetch; });
   afterEach(() => vi.restoreAllMocks());
 
-  it("lists 41 tools with unique bx24_ names", async () => {
+  it("lists 43 tools with unique bx24_ names", async () => {
     const { client, close } = await connectClient();
     const res = await client.listTools();
-    expect(res.tools).toHaveLength(41);
+    expect(res.tools).toHaveLength(43);
     const names = res.tools.map((t) => t.name);
     expect(new Set(names).size).toBe(names.length);
     for (const t of res.tools) {

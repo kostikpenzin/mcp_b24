@@ -5,7 +5,7 @@
 [![npm version](https://img.shields.io/npm/v/mcp-b24.svg)](https://www.npmjs.com/package/mcp-b24)
 [![npm downloads](https://img.shields.io/npm/dm/mcp-b24.svg)](https://www.npmjs.com/package/mcp-b24)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![tests](https://img.shields.io/badge/tests-88-brightgreen.svg)](./CHANGELOG.md)
+[![tests](https://img.shields.io/badge/tests-107-brightgreen.svg)](./CHANGELOG.md)
 [![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A518-green.svg)](https://nodejs.org/)
 [![MCP protocol](https://img.shields.io/badge/protocol-MCP-purple.svg)](https://modelcontextprotocol.io)
 [![platform](https://img.shields.io/badge/platform-Bitrix24-blue.svg)](https://www.bitrix24.com)
@@ -14,12 +14,12 @@
 [![secrets](https://img.shields.io/badge/secrets-none%20hardcoded-brightgreen.svg)](#security)
 [![malware](https://img.shields.io/badge/malware-none%20detected-brightgreen.svg)](#security)
 
-**41 tools** · **~870 actions** · **Bitrix24 REST 1.0 + 3.0** · **88 tests**
+**43 tools** · **~870 actions** · **Bitrix24 REST 1.0 + 3.0** · **95 tests**
 
 MCP server for the **Bitrix24** platform.
 Wraps the Bitrix24 REST API (CRM, tasks, chats, files, calendar, HR, smart
 processes, mail, telephony, workflows, events, open lines, chat bots, document
-generator, quotes, currency, webforms, tracking, inventory) into 41 tools your
+generator, quotes, currency, webforms, tracking, inventory) into 43 tools your
 AI agent can call directly — and **executes real calls** on the portal (unlike
 the official Bitrix24 MCP, which only serves documentation).
 
@@ -99,6 +99,8 @@ npx -y mcp-b24
 | `BX24_AUDIT_LOG` | Optional | JSONL audit path for destructive + auth events (omit to disable) |
 | `BX24_TRANSPORT` | Optional | `stdio` or `http` (default `stdio`) |
 | `BX24_HTTP_HOST/PORT/PATH` | Optional | HTTP transport endpoint (default `127.0.0.1:3000/mcp`) |
+| `BX24_HTTP_TOKEN` | Optional | If set, the HTTP transport requires `Authorization: Bearer <token>` |
+| `BX24_CORS_ORIGIN` | Optional | CORS for browser-based MCP clients — disabled by default; set `*` or a specific origin like `https://app.example.com` to enable |
 
 You can either:
 - Set `BX24_WEBHOOK_URL` — simplest, acts on behalf of the webhook creator; no refresh needed, or
@@ -190,6 +192,12 @@ BX24_TRANSPORT=http BX24_HTTP_PORT=3000 BX24_WEBHOOK_URL="https://..." npx mcp-b
 # serves http://127.0.0.1:3000/mcp
 ```
 
+The HTTP transport accepts only local/IP-literal `Host` headers (DNS-rebinding
+defence), caps request bodies at 2 MB, and is unauthenticated by default — bind
+it to a public interface only together with `BX24_HTTP_TOKEN` (clients then send
+`Authorization: Bearer <token>`). CORS is disabled unless `BX24_CORS_ORIGIN` is
+set (browser-based MCP clients only).
+
 ### Cursor
 
 Add to `.cursor/mcp.json`:
@@ -252,7 +260,7 @@ npm run build
 
 ## Tools Overview
 
-### 41 tools, ~870 actions
+### 43 tools, ~870 actions
 
 | Tool | Description | Group |
 |------|-------------|-------|
@@ -275,6 +283,7 @@ npm run build
 | `bx24_crm_calllists` | Call lists (cold-call dial lists) | CRM |
 | `bx24_crm_addresses` | CRM addresses: CRUD, by client, delete by filter | CRM |
 | `bx24_crm_stagehistory` | Stage movement history | CRM |
+| `bx24_crm_summary` | CRM overview: total counts of leads/deals/contacts/companies + lead statuses + deal funnels in one call | CRM |
 | `bx24_tasks` | Tasks: lifecycle + checklists + comments + elapsed + flows + stages + planner + dependencies + user fields | collab |
 | `bx24_projects` | Groups/projects (social network) + members + subjects | collab |
 | `bx24_disk` | Disk: storages, folders, files, versions, sharing, external links, rights | collab |
@@ -297,6 +306,7 @@ npm run build
 | `bx24_events` | Event subscriptions + offline queue + supported events list | biz |
 | `bx24_batch` | Combine up to 50 REST calls in one request (`$result[]` refs) | generic |
 | `bx24_call` | Invoke any Bitrix24 REST method by name (escape-hatch) | generic |
+| `bx24_health` | Verify API connectivity, credentials, and response time | generic |
 
 Each domain tool is **action-based**: the `action` enum selects the operation
 (e.g. `action: "add"`, `"list"`, `"update"`, `"delete"`). Full action list:
@@ -338,9 +348,15 @@ language and the AI agent maps it to the right tool and action.
 ### Security
 
 - Credentials (webhook secret, OAuth tokens) are **never** exposed to the AI
-  agent or returned in tool results
+  agent or returned in tool results — even `bx24_health` reports the portal as
+  a host name only
 - Destructive actions can require explicit `confirm: true`
-  (`BX24_CONFIRM_DESTRUCTIVE=true`) and are written to the JSONL audit log
+  (`BX24_CONFIRM_DESTRUCTIVE=true`) and are written to the JSONL audit log;
+  audit entries mask secret-like parameter keys (also nested ones)
+- The HTTP transport hardening: CORS is opt-in (`BX24_CORS_ORIGIN`, empty =
+  disabled), `Host` headers are validated against local names/IP literals
+  (DNS-rebinding defence), request bodies are capped at 2 MB, and an optional
+  shared token (`BX24_HTTP_TOKEN`) enables `Authorization: Bearer` checks
 - Rate limits are respected via a token-bucket; `QUERY_LIMIT_EXCEEDED` (503) and
   `OPERATION_TIME_LIMIT` (429) are retried with backoff
 - Password management and auth/login actions are excluded — auth is handled
@@ -403,7 +419,7 @@ The AI agent will call `bx24_crm_deals` `action: "list"` (filtered by
 npm install          # Install dependencies
 npm run build        # Compile TypeScript + chmod +x
 npm run dev          # Watch mode
-npm test             # Run 88 tests (vitest)
+npm test             # Run 95 tests (vitest)
 npm run test:coverage
 npm start            # Run server
 docker build -t mcp/bitrix24 .   # Docker image
@@ -428,12 +444,13 @@ mcp_b24/
 │   └── tools/
 │       ├── framework.ts  # Data-driven action-tool framework
 │       ├── params.ts     # Reusable param schemas
-│       ├── index.ts      # Tool registration (41 tools)
+│       ├── index.ts      # Tool registration (43 tools)
 │       ├── batch.ts      # bx24_batch
 │       ├── call.ts       # bx24_call (escape-hatch)
-│       ├── crm/          # 10 CRM tools
-│       ├── collab/       # 7 collab tools
-│       ├── org/         # 4 org tools
+│       ├── health.ts     # bx24_health (API connectivity check)
+│       ├── crm/          # 20 CRM tools (incl. summary)
+│       ├── collab/       # 9 collab tools
+│       ├── org/          # 4 org tools
 │       └── biz/          # 7 biz tools
 ├── docs/                 # en/ + ru/ (USER_GUIDE, SELLER_GUIDE, DEVELOPER_GUIDE, TOOLS_REFERENCE, AUDIT_LOG)
 ├── i18n/README.ru.md     # Russian README

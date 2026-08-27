@@ -1,6 +1,6 @@
 # Справочник инструментов (TOOLS_REFERENCE)
 
-Полный реестр 41 инструмента `mcp-b24`: 39 доменных + `bx24_batch` + `bx24_call`. Все инструменты, кроме двух generic, **action-based** (операция выбирается параметром `action`). Деструктивные действия помечены 🗑️.
+Полный реестр 43 инструментов `mcp-b24`: 40 доменных + `bx24_batch` + `bx24_call` + `bx24_crm_summary` + `bx24_health`. Все инструменты, кроме generic, **action-based** (операция выбирается параметром `action`). Деструктивные действия помечены 🗑️.
 
 > Точные схемы параметров — в `inputSchema` каждого инструмента (видны MCP-клиенту через `tools/list`). Здесь — сводный реестр.
 
@@ -27,6 +27,7 @@
 | `bx24_crm_calllists` | add, get, list, 🗑️delete, start, status |
 | `bx24_crm_addresses` | add, get, list, update, 🗑️delete, fields, byclient, 🗑️deleteByFilter |
 | `bx24_crm_stagehistory` | list, get, fields |
+| `bx24_crm_summary` | *(без action)* — счетчики лидов/сделок/контактов/компаний + статусы лидов + воронки за один параллельный вызов |
 
 ## collab
 
@@ -69,6 +70,7 @@
 |---|---|---|
 | `bx24_batch` | (без action) `cmd` | Объединяет до 50 REST-вызовов; ссылки на предыдущие результаты через `$result[key]`. Деструктивные команды (delete/remove/complete/…) требуют `confirm: true` при `BX24_CONFIRM_DESTRUCTIVE=true`. |
 | `bx24_call` | (без action) `method`, `params` | Вызов любого REST-метода Битрикс24 по имени — escape-hatch для операций вне обёрнутых. Деструктивные методы требуют `confirm: true` при `BX24_CONFIRM_DESTRUCTIVE=true`; `method: "batch"` отклоняется (используйте `bx24_batch`). |
+| `bx24_health` | (без action) | Проверка подключения: статус, время отклика, диагностика. Возвращает `{ status, authMode, portal, responseTimeMs, appInfo/error }`. |
 
 ## Словарь общих параметров
 

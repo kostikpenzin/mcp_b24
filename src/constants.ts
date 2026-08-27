@@ -17,6 +17,12 @@ export const DEFAULT_MAX_ROWS = 5000;
 export const DEFAULT_HTTP_HOST = "127.0.0.1";
 export const DEFAULT_HTTP_PORT = 3000;
 export const DEFAULT_HTTP_PATH = "/mcp";
+// CORS is disabled by default: echoing `Access-Control-Allow-Origin: *` lets any
+// web page drive an unauthenticated local MCP server (and the Bitrix24 portal
+// behind it). Browser clients must opt in via BX24_CORS_ORIGIN.
+export const DEFAULT_CORS_ORIGIN = "";
+// Hard cap for HTTP request bodies — protects against memory-exhaustion DoS.
+export const MAX_HTTP_BODY_BYTES = 2 * 1024 * 1024;
 
 // Rate-limit defaults (Bitrix24 leaky bucket): non-Enterprise 2 rps / burst 50;
 // Enterprise 5 rps / burst 250. Default conservative.

@@ -1,6 +1,6 @@
 # Tools Reference
 
-Full registry of the 41 `mcp-b24` tools: 39 domain + `bx24_batch` + `bx24_call`. All tools except the two generic ones are **action-based** (the operation is selected via the `action` parameter). Destructive actions are marked 🗑️.
+Full registry of the 43 `mcp-b24` tools: 40 domain + `bx24_batch` + `bx24_call` + `bx24_crm_summary` + `bx24_health`. All tools except the generic ones are **action-based** (the operation is selected via the `action` parameter). Destructive actions are marked 🗑️.
 
 > Exact parameter schemas live in each tool's `inputSchema` (visible to MCP clients via `tools/list`). This is a summary registry.
 
@@ -8,16 +8,16 @@ Full registry of the 41 `mcp-b24` tools: 39 domain + `bx24_batch` + `bx24_call`.
 
 ```mermaid
 flowchart LR
-    R["mcp-b24<br/>41 tools"] --> CRM["CRM · 19"]
+    R["mcp-b24<br/>43 tools"] --> CRM["CRM · 20"]
     R --> COL["collab · 9"]
     R --> ORG["org · 4"]
     R --> BIZ["biz · 7"]
-    R --> GEN["generic · 2"]
-    CRM --> L["leads · deals · contacts · companies · invoices<br/>products · activities · requisites · duplicates · smart_processes<br/>quotes · documents · currency · webform · tracking<br/>automation · calllists · addresses · stagehistory"]
+    R --> GEN["generic · 3"]
+    CRM --> L["leads · deals · contacts · companies · invoices<br/>products · activities · requisites · duplicates · smart_processes<br/>quotes · documents · currency · webform · tracking<br/>automation · calllists · addresses · stagehistory · summary"]
     COL --> T["tasks · projects · disk · im · im_chat<br/>conf · calendar · openlines · bots"]
     ORG --> U["users · departments · time · hr"]
     BIZ --> W["lists · mail · reports · marketing<br/>workflows · telephony · events"]
-    GEN --> G["bx24_batch · bx24_call"]
+    GEN --> G["bx24_batch · bx24_call · bx24_health"]
 ```
 
 ## CRM
@@ -43,6 +43,7 @@ flowchart LR
 | `bx24_crm_calllists` | add, get, list, 🗑️delete, start, status |
 | `bx24_crm_addresses` | add, get, list, update, 🗑️delete, fields, byclient, 🗑️deleteByFilter |
 | `bx24_crm_stagehistory` | list, get, fields |
+| `bx24_crm_summary` | *(no action)* — total counts of leads/deals/contacts/companies + lead statuses + deal funnels in one parallel call |
 
 ## collab
 
@@ -85,6 +86,7 @@ flowchart LR
 |---|---|
 | `bx24_batch` | Combine up to 50 REST calls in one request; reference earlier results via `$result[key]`. Destructive commands (delete/remove/complete/…) require `confirm: true` when `BX24_CONFIRM_DESTRUCTIVE=true`. |
 | `bx24_call` | Invoke any Bitrix24 REST method by name with arbitrary `params` (escape-hatch). Destructive methods require `confirm: true` when `BX24_CONFIRM_DESTRUCTIVE=true`; `method: "batch"` is rejected (use `bx24_batch`). |
+| `bx24_health` | *(no action)* — verify API connectivity, credentials, and response time; returns `{ status, authMode, portal, responseTimeMs, appInfo/error }`. |
 
 ## Common parameters glossary
 

@@ -1,7 +1,7 @@
 {
   "name": "mcp-b24",
-  "version": "0.3.2",
-  "description": "MCP server for Bitrix24 (wraps the Bitrix24 REST API — CRM, Tasks, IM, Disk, Calendar, HR, Smart processes, Mail, Telephony, Workflows, Open Lines, Bots, Document Generator). 41 tools: ~870 actions, RU/EN natural-language support, webhook + OAuth 2.0, destructive action confirmation, batch.",
+  "version": "0.4.0",
+  "description": "MCP server for Bitrix24 (wraps the Bitrix24 REST API — CRM, Tasks, IM, Disk, Calendar, HR, Smart processes, Mail, Telephony, Workflows, Open Lines, Bots, Document Generator). 43 tools: ~870 actions, RU/EN natural-language support, webhook + OAuth 2.0, destructive action confirmation, batch, hardened HTTP (opt-in CORS + token auth).",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

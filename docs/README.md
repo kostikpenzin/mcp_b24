@@ -1,6 +1,6 @@
 # mcp-b24 — Documentation
 
-Full MCP server over the Bitrix24 REST API: **41 tools**, ~870 actions, webhook + OAuth 2.0, RU/EN, MIT.
+Full MCP server over the Bitrix24 REST API: **43 tools**, ~870 actions, webhook + OAuth 2.0, RU/EN, MIT.
 
 **Languages:** English · [Русский](./ru/README.md)
 
@@ -24,7 +24,7 @@ flowchart TD
 | [USER_GUIDE.md](./en/USER_GUIDE.md) | Everyday employees | Install, talk to the agent, everyday cases |
 | [SELLER_GUIDE.md](./en/SELLER_GUIDE.md) | CRM managers / ROP / HR / admins | Role-specific workflows & recipes |
 | [DEVELOPER_GUIDE.md](./en/DEVELOPER_GUIDE.md) | Developers | Architecture, data-driven framework, adding tools, tests, publish |
-| [TOOLS_REFERENCE.md](./en/TOOLS_REFERENCE.md) | Everyone | Full registry of 41 tools and actions |
+| [TOOLS_REFERENCE.md](./en/TOOLS_REFERENCE.md) | Everyone | Full registry of 43 tools and actions |
 | [AUDIT_LOG.md](./en/AUDIT_LOG.md) | Admins / security | JSONL audit format & policy |
 
 Russian versions: [`ru/`](./ru/README.md).

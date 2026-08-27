@@ -5,7 +5,7 @@
 [![npm version](https://img.shields.io/npm/v/mcp-b24.svg)](https://www.npmjs.com/package/mcp-b24)
 [![npm downloads](https://img.shields.io/npm/dm/mcp-b24.svg)](https://www.npmjs.com/package/mcp-b24)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
-[![tests](https://img.shields.io/badge/tests-88-brightgreen.svg)](../CHANGELOG.md)
+[![tests](https://img.shields.io/badge/tests-107-brightgreen.svg)](../CHANGELOG.md)
 [![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A518-green.svg)](https://nodejs.org/)
 [![MCP protocol](https://img.shields.io/badge/protocol-MCP-purple.svg)](https://modelcontextprotocol.io)
 [![platform](https://img.shields.io/badge/platform-Bitrix24-blue.svg)](https://www.bitrix24.com)
@@ -14,13 +14,13 @@
 [![secrets](https://img.shields.io/badge/secrets-none%20hardcoded-brightgreen.svg)](#безопасность)
 [![malware](https://img.shields.io/badge/malware-none%20detected-brightgreen.svg)](#безопасность)
 
-**41 инструмент** · **~870 действий** · **Bitrix24 REST 1.0 + 3.0** · **88 тестов**
+**43 инструмента** · **~870 действий** · **Bitrix24 REST 1.0 + 3.0** · **95 тестов**
 
 MCP-сервер для платформы **Битрикс24**.
 Оборачивает REST API Битрикс24 (CRM, задачи, чаты, файлы, календарь, HR, умные
 процессы, почта, телефония, бизнес-процессы, события, открытые линии, чат-боты,
 генератор документов, коммерческие предложения, валюты, веб-формы, отслеживание,
-склад) в 41 инструмент, которые AI-агент вызывает напрямую — и **реально
+склад) в 43 инструмента, которые AI-агент вызывает напрямую — и **реально
 выполняет запросы** к порталу (в отличие от официального MCP Битрикс24, который
 только отдаёт документацию).
 
@@ -100,6 +100,8 @@ npx -y mcp-b24
 | `BX24_AUDIT_LOG` | Нет | Путь JSONL-аудита деструктивных + auth-событий |
 | `BX24_TRANSPORT` | Нет | `stdio` или `http` (`stdio`) |
 | `BX24_HTTP_HOST/PORT/PATH` | Нет | HTTP-эндпоинт (`127.0.0.1:3000/mcp`) |
+| `BX24_HTTP_TOKEN` | Нет | Если задан, HTTP-транспорт требует `Authorization: Bearer <token>` |
+| `BX24_CORS_ORIGIN` | Нет | CORS для браузерных MCP-клиентов — по умолчанию выключен; укажите `*` или конкретный origin для включения |
 
 Можно:
 - задать `BX24_WEBHOOK_URL` — проще всего, действует от имени создателя вебхука; обновление не нужно, или
@@ -217,7 +219,7 @@ npm run build
 
 ## Обзор инструментов
 
-### 41 инструмент, ~870 действий
+### 43 инструмента, ~870 действий
 
 | Инструмент | Назначение | Группа |
 |-----------|------------|--------|
@@ -240,6 +242,7 @@ npm run build
 | `bx24_crm_calllists` | Списки обзвона | CRM |
 | `bx24_crm_addresses` | Адреса клиентов | CRM |
 | `bx24_crm_stagehistory` | История перемещений по стадиям | CRM |
+| `bx24_crm_summary` | Сводка CRM: счетчики лидов/сделок/контактов/компаний + статусы лидов + воронки за один вызов | CRM |
 | `bx24_tasks` | Задачи: lifecycle + чек-листы + комментарии + время + потоки + канбан-стадии + планировщик + зависимости + поля | collab |
 | `bx24_projects` | Группы/проекты (соц. сеть) + участники + темы | collab |
 | `bx24_disk` | Диск: хранилища, папки, файлы, версии, шаринг, ссылки, права | collab |
@@ -262,6 +265,7 @@ npm run build
 | `bx24_events` | Подписки на события + офлайн-очередь + список событий | biz |
 | `bx24_batch` | Пакет из ≤50 вызовов (`$result[]`) | generic |
 | `bx24_call` | Вызов любого REST-метода по имени (escape-hatch) | generic |
+| `bx24_health` | Проверка подключения: статус, время отклика, диагностика | generic |
 
 Каждый доменный инструмент **action-based**: операция выбирается параметром
 `action`. Полный список действий — [`docs/ru/TOOLS_REFERENCE.md`](../docs/ru/TOOLS_REFERENCE.md) (EN: [`docs/en/`](../docs/README.md)).
@@ -299,11 +303,16 @@ npm run build
 ### Безопасность
 
 - Учётные данные (вебхук, OAuth-токены) **никогда** не попадают в переписку и не
-  возвращаются в результатах
+  возвращаются в результатах — даже `bx24_health` показывает портал только именем хоста
 - Деструктивные действия требуют `confirm: true` (`BX24_CONFIRM_DESTRUCTIVE=true`)
-  и пишутся в JSONL-аудит
+  и пишутся в JSONL-аудит; записи аудита маскируют секретоподобные ключи параметров
+  (в том числе вложенные)
+- Укрепление HTTP-транспорта: CORS включается явно (`BX24_CORS_ORIGIN`, пусто =
+  выключен), `Host` проверяется по локальным именам/IP-литералам (защита от DNS-rebinding),
+  тело запроса ограничено 2 МБ, опциональный общий токен (`BX24_HTTP_TOKEN`)
+  включает проверку `Authorization: Bearer`
 - Лимиты соблюдаются через token-bucket; `QUERY_LIMIT_EXCEEDED` (503) и
-  `OPERATION_TIME_LIMIT` (429) ретраятся с backoff
+  `OPERATION_TIME_LIMIT` (429) ретраются с backoff
 - Действия по паролям/логину исключены — авторизация через env-переменные
 
 ## Сценарии использования
@@ -342,7 +351,7 @@ npm run build
 npm install          # зависимости
 npm run build        # TypeScript + chmod +x
 npm run dev          # watch
-npm test             # 88 тестов (vitest)
+npm test             # 95 тестов (vitest)
 npm run test:coverage
 npm start            # запуск
 docker build -t mcp/bitrix24 .   # Docker-образ
@@ -367,8 +376,8 @@ mcp_b24/
 │   └── tools/
 │       ├── framework.ts  # data-driven фреймворк
 │       ├── params.ts     # переиспользуемые схемы
-│       ├── index.ts      # регистрация 41 инструмента
-│       ├── batch.ts / call.ts
+│       ├── index.ts      # регистрация 43 инструментов
+│       ├── batch.ts / call.ts / health.ts
 │       ├── crm/  collab/  org/  biz/
 ├── docs/                 # en/ + ru/ (USER_GUIDE, SELLER_GUIDE, DEVELOPER_GUIDE, TOOLS_REFERENCE, AUDIT_LOG)
 ├── i18n/README.ru.md     # этот файл

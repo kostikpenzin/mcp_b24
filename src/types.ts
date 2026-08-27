@@ -25,6 +25,9 @@ export interface Bitrix24Config {
   httpHost: string;
   httpPort: number;
   httpPath: string;
+  corsOrigin: string;
+  /** When set, the HTTP transport requires `Authorization: Bearer <httpToken>`. */
+  httpToken?: string;
 }
 
 export interface ToolDefinition {

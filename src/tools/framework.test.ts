@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { createActionTool } from "./framework.js";
+import { createActionTool, maskParams } from "./framework.js";
 import { Bitrix24ApiClient } from "../api-client.js";
 import type { Bitrix24Config } from "../types.js";
 
@@ -18,6 +18,7 @@ const cfg: Bitrix24Config = {
   httpHost: "127.0.0.1",
   httpPort: 3000,
   httpPath: "/mcp",
+  corsOrigin: "*",
 };
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -109,5 +110,28 @@ describe("createActionTool", () => {
       { get: { restMethod: "crm.lead.get", pathParams: ["id"] } }, client);
     const res = await tool.handler({ action: "boom" });
     expect(res.isError).toBe(true);
+  });
+});
+
+describe("maskParams", () => {
+  it("masks secret-like keys deeply (nested objects and arrays)", () => {
+    const masked = maskParams({
+      id: "1",
+      auth_token: "abc",
+      fields: {
+        password: "p",
+        nested: [{ clientSecret: "s" }, { title: "keep" }],
+        webhookUrl: "https://portal/rest/1/secret/",
+      },
+    });
+    expect(masked).toEqual({
+      id: "1",
+      auth_token: "***",
+      fields: {
+        password: "***",
+        nested: [{ clientSecret: "***" }, { title: "keep" }],
+        webhookUrl: "***",
+      },
+    });
   });
 });

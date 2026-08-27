@@ -5,6 +5,7 @@ import {
   DEFAULT_HTTP_HOST,
   DEFAULT_HTTP_PORT,
   DEFAULT_HTTP_PATH,
+  DEFAULT_CORS_ORIGIN,
   DEFAULT_RATE_LIMIT_RPS,
   DEFAULT_RATE_LIMIT_BURST,
   DEFAULT_LANG,
@@ -79,6 +80,8 @@ export function loadConfig(): Bitrix24Config {
   const httpHost = env("BX24_HTTP_HOST") || DEFAULT_HTTP_HOST;
   const httpPort = parsePositiveInt(env("BX24_HTTP_PORT"), DEFAULT_HTTP_PORT, "BX24_HTTP_PORT");
   const httpPath = env("BX24_HTTP_PATH") || DEFAULT_HTTP_PATH;
+  const corsOrigin = env("BX24_CORS_ORIGIN") || DEFAULT_CORS_ORIGIN;
+  const httpToken = env("BX24_HTTP_TOKEN") || undefined;
   const oauthServer = env("BX24_OAUTH_SERVER") || DEFAULT_OAUTH_SERVER;
 
   let webhookUrl: string | undefined;
@@ -131,6 +134,8 @@ export function loadConfig(): Bitrix24Config {
     httpHost,
     httpPort,
     httpPath,
+    corsOrigin,
+    httpToken,
   };
 }
 

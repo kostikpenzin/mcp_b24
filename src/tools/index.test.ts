@@ -18,6 +18,7 @@ const cfg: Bitrix24Config = {
   httpHost: "127.0.0.1",
   httpPort: 3000,
   httpPath: "/mcp",
+  corsOrigin: "*",
 };
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -30,13 +31,13 @@ describe("getAllTools — registry & routing", () => {
   afterEach(() => vi.restoreAllMocks());
 
   const client = new Bitrix24ApiClient(cfg);
-  const tools = getAllTools(client);
+  const tools = getAllTools(client, cfg);
 
-  it("registers exactly 41 tools (39 + batch + call) with unique names", () => {
-    expect(tools).toHaveLength(41);
+  it("registers exactly 43 tools (39 action + batch + call + summary + health) with unique names", () => {
+    expect(tools).toHaveLength(43);
     const names = tools.map((t) => t.name);
     expect(new Set(names).size).toBe(names.length);
-    expect(names.filter((n) => n.startsWith("bx24_"))).toHaveLength(41);
+    expect(names.filter((n) => n.startsWith("bx24_"))).toHaveLength(43);
   });
 
   it("all tools expose object inputSchema; non-generic tools require action", () => {
@@ -44,7 +45,7 @@ describe("getAllTools — registry & routing", () => {
       expect(t.inputSchema.type).toBe("object");
       const required = t.inputSchema.required;
       if (NON_ACTION_TOOLS.has(t.name)) {
-        expect(required.length).toBeGreaterThan(0);
+        expect(required).not.toContain("action");
       } else {
         expect(required).toContain("action");
       }
@@ -122,7 +123,7 @@ describe("getAllTools — action ↔ mappings parity (release readiness)", () =>
   afterEach(() => vi.restoreAllMocks());
 
   const client = new Bitrix24ApiClient(cfg);
-  const tools = getAllTools(client);
+  const tools = getAllTools(client, cfg);
 
   it("every action in every action-tool resolves to a mapping (no 'Unknown action')", async () => {
     const problems: string[] = [];

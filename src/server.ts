@@ -62,7 +62,9 @@ export function buildInstructions(): string {
     "  - bx24_events: bind/unbind/get/offline_*/get_supported/events_list (события/подписки)\n\n" +
     "GENERIC:\n" +
     "  - bx24_batch: combine up to 50 REST calls; reference earlier results via $result[key]\n" +
-    "  - bx24_call: invoke ANY Bitrix24 REST method by name with arbitrary params (escape-hatch)\n\n" +
+    "  - bx24_call: invoke ANY Bitrix24 REST method by name with arbitrary params (escape-hatch)\n" +
+    "  - bx24_crm_summary: CRM overview — total counts of leads/deals/contacts/companies + lead statuses + deal funnels in one call (сводка CRM)\n" +
+    "  - bx24_health: verify API connectivity, credentials, and response time (проверка подключения)\n\n" +
     "CONVENTIONS:\n" +
     "- CRM IDs are strings. List actions support filter/select/order/start. Call action=fields FIRST when unsure which fields an entity supports.\n" +
     "- Bitrix24 returns errors inside a 200 response with an `error` field; surfaced as tool errors with the `reason` code.\n" +
@@ -80,7 +82,7 @@ export interface McpServerBundle {
 
 export function createServer(config: Bitrix24Config): McpServerBundle {
   const apiClient = new Bitrix24ApiClient(config);
-  const tools = getAllTools(apiClient);
+  const tools = getAllTools(apiClient, config);
   const toolMap = new Map<string, ToolDefinition>(tools.map((t) => [t.name, t]));
 
   const server = new Server(

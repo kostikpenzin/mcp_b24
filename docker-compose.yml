@@ -1,4 +1,12 @@
 # Example: run mcp-b24 over Streamable HTTP in Docker.
+#
+# Security notes:
+# - The server has no authentication by default. The port mapping below binds
+#   to 127.0.0.1 so only the Docker host itself can reach it. To expose the
+#   service on a network, set BX24_HTTP_TOKEN (clients then send
+#   `Authorization: Bearer <token>`) and map "3000:3000" explicitly.
+# - BX24_CORS_ORIGIN stays empty unless a browser-based MCP client needs
+#   direct cross-origin access; set it to that client's exact origin.
 services:
   bitrix24-mcp:
     build: .
@@ -14,7 +22,11 @@ services:
       BX24_HTTP_HOST: 0.0.0.0
       BX24_HTTP_PORT: "3000"
       BX24_HTTP_PATH: /mcp
+      # BX24_HTTP_TOKEN: change-me-long-random-token
+      # BX24_CORS_ORIGIN: https://your-app.example.com
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     volumes:
+      # The runtime container runs as uid 1000 (node); make sure the mounted
+      # directory is writable by it: chown -R 1000:1000 ./data
       - ./data:/data

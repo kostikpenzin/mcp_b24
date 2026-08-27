@@ -2,14 +2,14 @@ import type { Bitrix24ApiClient } from "../api-client.js";
 import type { ToolDefinition, ToolResult } from "../types.js";
 import { errorResult, successResult } from "../error.js";
 import { validateArgs } from "./validate.js";
+import { DESTRUCTIVE_KEYWORDS, maskParams } from "./framework.js";
 import { API_VERSION } from "../constants.js";
 
-// Keep in sync with DESTRUCTIVE_KEYWORDS in framework.ts / call.ts.
-const DESTRUCTIVE_KEYWORDS = [
-  "delete", "remove", "detach", "exclude", "stop", "cancel",
-  "reject", "complete", "close", "mute", "leave", "kick", "destroy",
-  "markdeleted", "kill", "unbind", "clear",
-];
+// Bitrix24 `batch` wraps many REST calls in one request. `cmd` maps logical
+// keys to "method?param=value&..." strings; results come back keyed by the same
+// names and can be referenced as $result[key] in later commands. Destructive
+// keywords are shared with framework.ts so batch cannot drift from per-action
+// confirmation checks.
 
 // A cmd value is "method?param=value&..." — the method is everything before "?".
 function cmdMethod(cmdValue: string): string {
@@ -72,7 +72,7 @@ export function createBatchTool(client: Bitrix24ApiClient): ToolDefinition {
           tool: "bx24_batch",
           action: "batch",
           restMethod: "batch",
-          params: { cmd },
+          params: maskParams({ cmd }) as Record<string, unknown>,
           result: "denied",
           durationMs: 0,
         });
@@ -102,7 +102,7 @@ export function createBatchTool(client: Bitrix24ApiClient): ToolDefinition {
             tool: "bx24_batch",
             action: "batch",
             restMethod: "batch",
-            params: { cmd },
+            params: maskParams({ cmd }) as Record<string, unknown>,
             result: resultStatus,
             durationMs: Date.now() - started,
           });
