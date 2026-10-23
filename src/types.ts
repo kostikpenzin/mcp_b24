@@ -59,11 +59,19 @@ export interface Bitrix24Response {
   result?: unknown;
   next?: number;
   total?: number;
-  error?: string;
+  // REST 1.0: a reason string. REST 3.0: an object { code, message, validation? }.
+  error?: string | RestV3Error;
   error_description?: string;
   error_information?: string;
   operating_reset_at?: number;
   [key: string]: unknown;
+}
+
+/** REST 3.0 error body: `{ "error": { "code": "BITRIX_REST_V3_EXCEPTION_…", "message": "…" } }`. */
+export interface RestV3Error {
+  code: string;
+  message: string;
+  validation?: { message: string; field?: string }[];
 }
 
 /** Structured confirmation preview returned for destructive actions (two-phase). */

@@ -9,6 +9,11 @@ export const VERSION: string = pkg.version;
 // REST methods (crm.*, tasks.task.*, im.*, disk.*, user.*, calendar.event.*).
 export const API_VERSION = "REST 1.0 + 3.0";
 
+// Method-name prefixes served only by REST 3.0 (`/rest/api/<method>`, JSON body,
+// no `.json` suffix). Methods that exist in both generations (tasks.task.*, …)
+// stay on REST 1.0 so existing tools keep their response shapes.
+export const REST_V3_METHOD_PREFIXES: readonly string[] = ["note."];
+
 // Default OAuth token endpoint for cloud Bitrix24 portals.
 export const DEFAULT_OAUTH_SERVER = "https://oauth.bitrix.info";
 

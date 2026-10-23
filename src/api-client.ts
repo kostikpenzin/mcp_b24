@@ -3,9 +3,10 @@ import type {
   Bitrix24Response,
   HttpMethod,
   AuditEntry,
+  RestV3Error,
 } from "./types.js";
 import { Bitrix24ApiError } from "./error.js";
-import { VERSION, DEFAULT_TIMEOUT_MS, BACKOFF_STEPS_MS, MAX_BACKOFF_MS } from "./constants.js";
+import { VERSION, DEFAULT_TIMEOUT_MS, BACKOFF_STEPS_MS, MAX_BACKOFF_MS, REST_V3_METHOD_PREFIXES } from "./constants.js";
 import { TokenBucket } from "./utils/tokenBucket.js";
 import { Logger } from "./utils/logger.js";
 import { AuditLog } from "./audit/log.js";
@@ -103,9 +104,16 @@ export class Bitrix24ApiClient {
   ): Promise<T> {
     await this.bucket.acquire(1);
 
-    const hasBody = params !== undefined && Object.keys(params).length > 0;
-    const verb: HttpMethod = opts?.httpVerb ?? (hasBody ? "POST" : "GET");
-    const url = this.buildUrl(restMethod, verb, params);
+    const v3 = isRestV3Method(restMethod);
+    // REST 3.0 takes the OAuth token in the JSON body, not in the query string.
+    const bodyParams =
+      v3 && this.config.authMode === "oauth" && this.cachedAccessToken
+        ? { ...(params || {}), auth: this.cachedAccessToken }
+        : params;
+    const hasBody = bodyParams !== undefined && Object.keys(bodyParams).length > 0;
+    // REST 3.0 ignores query-string parameters, so anything with a body must be POSTed.
+    const verb: HttpMethod = v3 && hasBody ? "POST" : (opts?.httpVerb ?? (hasBody ? "POST" : "GET"));
+    const url = v3 ? this.buildV3Url(restMethod) : this.buildUrl(restMethod, verb, params);
 
     const headers: Record<string, string> = {
       "User-Agent": USER_AGENT,
@@ -114,7 +122,7 @@ export class Bitrix24ApiClient {
     let bodyStr: string | undefined;
     if (verb === "POST" && hasBody) {
       headers["Content-Type"] = "application/json";
-      bodyStr = JSON.stringify(params);
+      bodyStr = JSON.stringify(bodyParams);
     }
 
     let response: Response;
@@ -140,7 +148,7 @@ export class Bitrix24ApiClient {
       // Non-JSON response (binary download handled by caller).
     }
 
-    const errorReason = parsed?.error;
+    const { reason: errorReason, message: errorMessage } = parseError(parsed);
     const status = response.status;
 
     // Backoff on QUERY_LIMIT_EXCEEDED (503) — exponential, capped.
@@ -177,12 +185,7 @@ export class Bitrix24ApiClient {
     }
 
     if (parsed && errorReason) {
-      throw new Bitrix24ApiError(
-        status,
-        parsed.error_description || parsed.error_information || errorReason,
-        errorReason,
-        undefined,
-      );
+      throw new Bitrix24ApiError(status, errorMessage || errorReason, errorReason, undefined);
     }
 
     if (!response.ok) {
@@ -211,6 +214,18 @@ export class Bitrix24ApiClient {
       if (qs) queryParts.push(qs);
     }
     return queryParts.length > 0 ? `${base}?${queryParts.join("&")}` : base;
+  }
+
+  /**
+   * REST 3.0 address: `/rest/api/<user>/<secret>/<method>` for webhooks and
+   * `<client_endpoint>api/<method>` for OAuth — no `.json` suffix, no query string.
+   */
+  private buildV3Url(restMethod: string): string {
+    if (this.config.authMode === "webhook") {
+      return `${this.config.webhookUrl!.replace(/\/rest\//, "/rest/api/")}${restMethod}`;
+    }
+    const restRoot = this.clientEndpoint ?? `${this.config.domain}/rest/`;
+    return `${restRoot}api/${restMethod}`;
   }
 
   private buildQuery(params: Record<string, unknown>): string {
@@ -302,6 +317,28 @@ export class Bitrix24ApiClient {
   recordDestructive(entry: Omit<AuditEntry, "ts">): void {
     this.audit.write({ ts: new Date().toISOString(), ...entry });
   }
+}
+
+export function isRestV3Method(restMethod: string): boolean {
+  return REST_V3_METHOD_PREFIXES.some((prefix) => restMethod.startsWith(prefix));
+}
+
+/**
+ * Normalize both error shapes to a reason code + human message:
+ * REST 1.0 `{ error: "REASON", error_description }` and
+ * REST 3.0 `{ error: { code, message, validation? } }`.
+ */
+function parseError(parsed: Bitrix24Response | undefined): { reason?: string; message?: string } {
+  const error = parsed?.error;
+  if (error === undefined || error === null) return {};
+  if (typeof error === "string") {
+    return { reason: error, message: parsed?.error_description || parsed?.error_information || undefined };
+  }
+  const v3 = error as RestV3Error;
+  const details = (v3.validation || [])
+    .map((v) => (v.field ? `${v.field}: ${v.message}` : v.message))
+    .join("; ");
+  return { reason: v3.code, message: details ? `${v3.message} (${details})` : v3.message };
 }
 
 function extractRows<T>(result: unknown): T[] {
