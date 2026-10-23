@@ -184,3 +184,51 @@ describe("Bitrix24ApiClient — pagination", () => {
     expect(out.rows).toHaveLength(2);
   });
 });
+describe("Bitrix24ApiClient — REST 3.0 (note.*)", () => {
+  let fetchMock: ReturnType<typeof vi.fn>;
+  beforeEach(() => { fetchMock = vi.fn(); global.fetch = fetchMock as unknown as typeof fetch; });
+  afterEach(() => vi.restoreAllMocks());
+
+  it("routes note.* to /rest/api/ without .json and POSTs JSON", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ result: { item: { id: 77 } } }));
+    const client = new Bitrix24ApiClient(webhookConfig());
+    await client.callMethod("note.document.add", { fields: { collectionId: 3, title: "T" } }, { httpVerb: "GET" });
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://portal.bitrix24.ru/rest/api/1/secret/note.document.add");
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body as string)).toEqual({ fields: { collectionId: 3, title: "T" } });
+  });
+
+  it("keeps REST 1.0 methods on the classic URL", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ result: [] }));
+    const client = new Bitrix24ApiClient(webhookConfig());
+    await client.callMethod("tasks.task.list");
+    const [url] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://portal.bitrix24.ru/rest/1/secret/tasks.task.list.json");
+  });
+
+  it("passes the OAuth token in the body, not the query", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ result: { items: [] } }));
+    const client = new Bitrix24ApiClient(oauthConfig());
+    await client.callMethod("note.collection.list");
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://portal.bitrix24.ru/rest/api/note.collection.list");
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body as string)).toEqual({ auth: "atok" });
+  });
+
+  it("maps the REST 3.0 error object to reason + message", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({
+      error: {
+        code: "BITRIX_REST_V3_EXCEPTION_VALIDATION_DTOVALIDATIONEXCEPTION",
+        message: "Ошибка при валидации объекта",
+        validation: [{ field: "title", message: "Не заполнено обязательное поле" }],
+      },
+    }, 400));
+    const client = new Bitrix24ApiClient(webhookConfig());
+    const err = await client.callMethod("note.document.add", { fields: {} }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(Bitrix24ApiError);
+    expect((err as Bitrix24ApiError).message).toContain("title: Не заполнено обязательное поле");
+    expect((err as Bitrix24ApiError).reason).toBe("BITRIX_REST_V3_EXCEPTION_VALIDATION_DTOVALIDATIONEXCEPTION");
+  });
+});
