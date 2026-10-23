@@ -68,6 +68,7 @@ describe("getAllTools — registry & routing", () => {
     { name: "bx24_projects", action: "create", args: { fields: { NAME: "P" } }, expectMethod: "sonet_group.create", expectBody: { fields: { NAME: "P" } } },
     { name: "bx24_disk", action: "file_upload", args: { id: "1", fileArray: [{ NAME: "a.txt", CONTENT: "bGQ=" }] }, expectMethod: "disk.folder.uploadfile", expectBody: { id: "1", file: [{ NAME: "a.txt", CONTENT: "bGQ=" }] } },
     { name: "bx24_disk", action: "folder_deleteTree", args: { id: "1" }, expectMethod: "disk.folder.deletetree" },
+    { name: "bx24_disk", action: "storage_list", args: {}, expectMethod: "disk.storage.getlist" },
     { name: "bx24_im", action: "message_add", args: { DIALOG_ID: "chat1", MESSAGE: "hi" }, expectMethod: "im.message.add", expectBody: { DIALOG_ID: "chat1", MESSAGE: "hi" } },
     { name: "bx24_im_chat", action: "user_add", args: { CHAT_ID: "1", USERS: ["2"] }, expectMethod: "im.chat.user.add", expectBody: { CHAT_ID: "1", users: ["2"] } },
     { name: "bx24_conf", action: "create", args: { fields: { TITLE: "c" } }, expectMethod: "im.conference.create" },
