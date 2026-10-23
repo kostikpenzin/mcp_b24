@@ -21,7 +21,7 @@ export function createDiskTool(client: Bitrix24ApiClient): ToolDefinition {
       filter: P.filter, select: P.select, order: P.order, start: P.start,
     },
     {
-      storage_list: { restMethod: "disk.storage.list", httpVerb: "GET", isList: true },
+      storage_list: { restMethod: "disk.storage.getlist", httpVerb: "GET", isList: true },
       storage_get: { restMethod: "disk.storage.get", httpVerb: "GET", pathParams: ["id"] },
       storage_addFolder: { restMethod: "disk.storage.addfolder", httpVerb: "POST", pathParams: ["id"], bodyParam: "folderFields", bodyWrapper: "fields" },
       storage_getChildren: { restMethod: "disk.storage.getchildren", httpVerb: "GET", isList: true, pathParams: ["id"], queryParams: ["filter", "select", "order", "start"] },
